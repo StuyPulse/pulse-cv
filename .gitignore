@@ -1,0 +1,6 @@
+# Buildfiles
+*.o
+*.out
+
+# Vim temp files
+*.swp
