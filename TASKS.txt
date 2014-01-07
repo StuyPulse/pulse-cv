@@ -1,0 +1,4 @@
+1. Camera interface (AXIS, webcam)
+2. Filters
+3. Recognition
+4. Network
