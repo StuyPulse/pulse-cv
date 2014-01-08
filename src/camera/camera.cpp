@@ -3,6 +3,6 @@
 Camera::Camera() {
 }
 
-Mat Camera::getFrame() {
-  return NULL; //TODO: Make this not shit
-}
+//Mat Camera::getFrame() {
+  //return NULL; //TODO: Make this not shit
+//}

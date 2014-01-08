@@ -3,6 +3,7 @@
 
 #define AXIS_IP "10.6.94.12"
 
+using namespace cv;
 class Camera {
 public:
   Camera();       // Creates the camera, detecting whether or not
