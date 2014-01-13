@@ -20,3 +20,8 @@ Compiling
 Simply run `make` to compile, and, assuming you have all the prerequisites installed, you should get a `cv.out` executable
 
 
+
+
+External Stuff
+--------------
+We use [jpgd](https://code.google.com/p/jpeg-compressor) to decode images.
