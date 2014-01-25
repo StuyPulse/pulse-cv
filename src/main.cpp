@@ -3,6 +3,8 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+//#include "camera/camera.h"
+//#include "camera/camera.cpp"
 
 using namespace std;
 using namespace cv;
@@ -17,8 +19,16 @@ int main() {
   namedWindow(WINNAME, CV_WINDOW_AUTOSIZE);
   for(;;)
   {
-    Mat frame, dst;
+    Mat frame, dst , bright;
     cap >> frame; // get a new frame from camera
+    //Started adding brightness detection on 1-24-14
+    cvtColor(frame, bright, CV_BGR2HSV); //Format: cvCVTColor(const CvArr* src, CvArr* dst, int code)
+                                                             //code = code = CV_BGR2HSV
+    
+
+
+    cvtColor(bright, frame, CV_HSV2BGR); //Convert it back to rbg scheme
+    //End of changes
     cvtColor(frame, edges, CV_BGR2GRAY);
 
     for (int i = 0; i < 10; i++)
