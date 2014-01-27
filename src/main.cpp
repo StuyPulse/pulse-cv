@@ -19,17 +19,17 @@ int main() {
   namedWindow(WINNAME, CV_WINDOW_AUTOSIZE);
   for(;;)
   {
-    Mat frame, dst , bright;
+    Mat frame, dst , bright , filtered_hsv , filtered_bgr;
     cap >> frame; // get a new frame from camera
-    //Started adding brightness detection on 1-24-14
     cvtColor(frame, bright, CV_BGR2HSV); //Format: cvCVTColor(const CvArr* src, CvArr* dst, int code)
+    //Started adding brightness detection on 1-24-14
                                                              //code = code = CV_BGR2HSV
-    
+    inRange(bright , Scalar(25 , 75 , 95) , Scalar(35 , 255 , 255) , filtered_hsv); //HSV of orange = 30,80,100
 
 
-    cvtColor(bright, frame, CV_HSV2BGR); //Convert it back to rbg scheme
+    cvtColor(filtered_hsv, filtered_bgr, CV_HSV2BGR); //Convert it back to rbg scheme
     //End of changes
-    cvtColor(frame, edges, CV_BGR2GRAY);
+    cvtColor(filtered_bgr, edges, CV_BGR2GRAY);
 
     for (int i = 0; i < 10; i++)
       GaussianBlur(edges, edges, Size(9,9), 1.5, 1.5);
