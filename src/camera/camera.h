@@ -1,7 +1,10 @@
 #pragma once
 #include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <curl/curl.h>
 
-#define AXIS_IP "10.6.94.12"
+#define USE_WEBCAM true
+#define IMG_URL "http://10.6.94.12/axis-cgi/jpg/camera.cgi"
 
 using namespace cv;
 class Camera {
@@ -12,5 +15,8 @@ public:
                   // defined by AXIS_IP
   Mat getFrame(); // Returns the current camera frame
 private:
+#if USE_WEBCAM
+  VideoCapture cap;
+#endif
   
 };

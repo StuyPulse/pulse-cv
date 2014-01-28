@@ -1,5 +1,5 @@
 INCLUDES = -Isrc/
-LIBS = `pkg-config --libs opencv`
+LIBS = `pkg-config --libs opencv` `curl-config --libs`
 DIRS = camera filter net
 OBJS = $(patsubst src/%.cpp,obj/%.o, $(wildcard src/*.cpp) $(foreach d, $(DIRS), $(wildcard src/$(d)/*.cpp)))
 

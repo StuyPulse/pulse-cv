@@ -3,57 +3,24 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+<<<<<<< HEAD
 //#include "camera/camera.h"
 //#include "camera/camera.cpp"
+=======
+#include "camera/camera.h"
+>>>>>>> Add camera input both for webcam and AXIS cam. not the most efficient, but it works
 
 using namespace std;
 using namespace cv;
 
 int main() {
-  VideoCapture cap(0); //Open default camera
-  if (!cap.isOpened())
-    return -1;
-
-  Mat edges;
-  const string WINNAME = string("edges");
-  namedWindow(WINNAME, CV_WINDOW_AUTOSIZE);
-  for(;;)
-  {
-    Mat frame, dst , bright , filtered_hsv , filtered_bgr;
-    cap >> frame; // get a new frame from camera
-    cvtColor(frame, bright, CV_BGR2HSV); //Format: cvCVTColor(const CvArr* src, CvArr* dst, int code)
-    //Started adding brightness detection on 1-24-14
-                                                             //code = code = CV_BGR2HSV
-    inRange(bright , Scalar(25 , 75 , 95) , Scalar(35 , 255 , 255) , filtered_hsv); //HSV of orange = 30,80,100
-
-
-    cvtColor(filtered_hsv, filtered_bgr, CV_HSV2BGR); //Convert it back to rbg scheme
-    //End of changes
-    cvtColor(filtered_bgr, edges, CV_BGR2GRAY);
-
-    for (int i = 0; i < 10; i++)
-      GaussianBlur(edges, edges, Size(9,9), 1.5, 1.5);
-
-    Canny(edges, dst, 0, 30, 3);
-
-    vector<Vec4i> lines;
-    HoughLinesP( dst, lines, 1, CV_PI/180, 80, 30, 10 );
-
-    cvtColor(dst, dst, CV_GRAY2BGR);
-
-    for( size_t i = 0; i < lines.size(); i++ )
-    {
-        line( dst, Point(lines[i][0], lines[i][1]),
-            Point(lines[i][2], lines[i][3]), Scalar(0,0,255), 3, 8 );
-    }
-
-    // draw the image
-    imshow(WINNAME, dst);
-
-    // press ESC to break
-    if(waitKey(30) >= 0) break;
+  Camera cam;
+  namedWindow("frame");
+  bool running = true;
+  while (running) {
+    Mat frame = cam.getFrame();
+    imshow("frame", frame);
   }
 
-  // the camera will be deinitialized automatically in VideoCapture destructor
   return 0;
 }

@@ -3,20 +3,36 @@
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <arpa/inet.h>
+#include "jpgd.h"
 
 #define PORTNUM 80
 Camera::Camera() {
+#if USE_WEBCAM
+  cap = VideoCapture(0);
+#endif
 }
 
 Mat Camera::getFrame() {
-	int sockID;
-	struct sockaddr_in dest; 
-	sockID = socket(AF_INET , SOCK_STREAM , 0);
-	memset(&dest, 0, sizeof(dest));                /* zero the struct */
-	dest.sin_family = AF_INET;
-	dest.sin_addr.s_addr = inet_addr("10.6.94.1"); /* set destination IP number */ 
-	dest.sin_port = htons(PORTNUM);                /* set destination port number */  
-	//destination = "10.6.94.12/axis-cgi/jpg/image.cgi"
-  	connect(sockID, (struct sockaddr *)&dest, sizeof(struct sockaddr));
-  	return Mat();
+#if USE_WEBCAM
+  cap = VideoCapture(0);
+  Mat frame;
+  printf("blerp\n");
+  cap >> frame;
+  printf("blerp\n");
+  return frame;
+#else
+  FILE* pFile = fopen("img.jpg", "w");//tmpfile();
+  long lSize;
+  char buffer[100];
+  size_t result;
+
+  CURL* easyhandle = curl_easy_init();
+  curl_easy_setopt(easyhandle, CURLOPT_URL, IMG_URL);
+  curl_easy_setopt(easyhandle, CURLOPT_WRITEDATA, pFile);
+  int success = curl_easy_perform(easyhandle);
+  curl_easy_cleanup(easyhandle);
+  fclose(pFile);
+
+  return imread("img.jpg");
+#endif
 }
