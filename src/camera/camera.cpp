@@ -12,13 +12,19 @@ Camera::Camera() {
 #endif
 }
 
+Camera::~Camera() {
+#if USE_WEBCAM
+#else
+  printf("We are here!\n");
+  //Remove our temp file
+  remove("img.jpg");
+#endif
+}
 Mat Camera::getFrame() {
 #if USE_WEBCAM
   cap = VideoCapture(0);
   Mat frame;
-  printf("blerp\n");
   cap >> frame;
-  printf("blerp\n");
   return frame;
 #else
   FILE* pFile = fopen("img.jpg", "w");//tmpfile();

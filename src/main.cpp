@@ -17,9 +17,14 @@ int main() {
   Camera cam;
   namedWindow("frame");
   bool running = true;
+  char buffer[64];
   while (running) {
     Mat frame = cam.getFrame();
     imshow("frame", frame);
+#if !USE_WEBCAM
+    fgets(buffer, sizeof(buffer), stdin);
+    if (buffer != NULL) running = false;
+#endif
   }
 
   return 0;
