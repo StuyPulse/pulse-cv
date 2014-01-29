@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <arpa/inet.h>
 #include "jpgd.h"
+#include <err.h>
 
 #define PORTNUM 80
 Camera::Camera() {
@@ -17,7 +18,7 @@ Camera::~Camera() {
 #else
   printf("We are here!\n");
   //Remove our temp file
-  remove("img.jpg");
+  //remove("img.jpg");
 #endif
 }
 Mat Camera::getFrame() {
@@ -28,9 +29,7 @@ Mat Camera::getFrame() {
   return frame;
 #else
   FILE* pFile = fopen("img.jpg", "w");//tmpfile();
-  long lSize;
-  char buffer[100];
-  size_t result;
+  //printf("%s\n", strerror(errno));
 
   CURL* easyhandle = curl_easy_init();
   curl_easy_setopt(easyhandle, CURLOPT_URL, IMG_URL);
@@ -39,6 +38,8 @@ Mat Camera::getFrame() {
   curl_easy_cleanup(easyhandle);
   fclose(pFile);
 
-  return imread("img.jpg");
+  Mat out = imread("img.jpg");
+  //remove("img.jpg");
+  return out;
 #endif
 }
