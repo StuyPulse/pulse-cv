@@ -9,7 +9,7 @@
 using namespace std;
 using namespace cv;
 
-#define MAX_SLOPE_ERR 2
+#define MAX_SLOPE_ERR 0.5f
 #define MIN_HORIZ_ERR 100
 
 void printVec(Vec4i vec) {
@@ -36,6 +36,17 @@ vector<Vec4i> exterminate_in_range(vector<Vec4i> pts, Vec4i mid, int range) {
 
 }
 
+size_t num_in_range(vector<Vec4i> pts, Vec4i mid, int range) {
+  size_t num = 0;
+  for (int i = 0; i < pts.size(); i++) {
+    if (abs(pts[i][0] - mid[0]) >= range) {
+      ++num;
+    }
+  }  
+
+  return num;
+}
+
 int main() {
   Camera cam;
   namedWindow("frame");
@@ -43,23 +54,28 @@ int main() {
   char buffer[64];
   while (running) {
     Mat frame = cam.getFrame();
-    //cvtColor(frame, frame, CV_BGR2HSV);
-    inRange(frame, Scalar(0, 55, 55), Scalar(200, 150, 200), frame);
+    cvtColor(frame, frame, CV_BGR2HSV);
+    inRange(frame, Scalar(0,0,155), Scalar(255, 255, 255), frame);
+    //inRange(frame, Scalar(0, 55, 55), Scalar(200, 150, 200), frame);
     GaussianBlur(frame, frame, Size(9,9), 9, 9);
-    bitwise_not(frame, frame);
+    //bitwise_not(frame, frame);
     vector<Vec4i> lines;
     vector<Vec4i> horizontals = vector<Vec4i>();
-    HoughLinesP(frame, lines, 1, CV_PI/180, 80, 30, 10);
+    HoughLinesP(frame, lines, 1, CV_PI/180, 200, 30, 10);
     cvtColor(frame, frame, CV_GRAY2BGR);
     for (int i = 0; i < lines.size(); i++) {
-      line(frame, Point(lines[i][0], lines[i][1]), Point(lines[i][2], lines[i][3]),
-          Scalar(0,0,255), 3, 8);
       double yd = (lines[i][3] - lines[i][2]);
       double xd = (lines[i][1] - lines[i][0]);
       double slope = yd / xd; 
       if (abs(slope) < MAX_SLOPE_ERR) {
         horizontals.push_back(lines[i]);
+        line(frame, Point(lines[i][0], lines[i][1]), Point(lines[i][2], lines[i][3]),
+            Scalar(0,200,200), 1, 1);
+      } else {
+        line(frame, Point(lines[i][0], lines[i][1]), Point(lines[i][2], lines[i][3]),
+            Scalar(0,0,255), 1, 1);
       }
+      circle(frame, Point(lines[i][0], lines[i][1]), 5, Scalar(255, 0, 0));
     }
     printf("lines: %lu, horiz: %lu\n", lines.size(), horizontals.size());
     // Algorithm:
@@ -74,11 +90,14 @@ int main() {
       Vec4i median = calc_median(horizontals);
       printVec(median);
       vector<Vec4i> newSet = exterminate_in_range(horizontals, median, MIN_HORIZ_ERR);
-      line(frame, Point(median[0], median[1]), Point(median[2], median[3]), Scalar(0,255,0), 3, 8);
+      line(frame, Point(median[0], 0), Point(median[0], frame.size().height), Scalar(0,255,0), 3, 8);
       if (newSet.size() > 0) {
         median = calc_median(newSet);
-        line(frame, Point(median[0], median[1]), Point(median[2], median[3]), Scalar(255,0,0), 3, 8);
+        line(frame, Point(median[0], 0), Point(median[0], frame.size().height), Scalar(255,0,0), 3, 8);
         printVec(median);
+        if ((num_in_range(newSet, median, MIN_HORIZ_ERR) * 4) > newSet.size()) {
+          printf("I THINK WE FOUND A HOT ONE!\n");
+        }
         printf("\n");
       } // Else we are derp
     }
