@@ -9,14 +9,15 @@
 using namespace std;
 using namespace cv;
 
-#define MAX_SLOPE_ERR 0.5f
-#define MIN_HORIZ_ERR 100
+#define MAX_SLOPE_ERR 3.0f
+#define MIN_HORIZ_ERR 40
+#define N_CLOSE 2
 
 void printVec(Vec4i vec) {
   printf("%d, %d to %d, %d\n", vec[0], vec[1], vec[2], vec[3]);
 }
 int lowerFirstX(Vec4i first, Vec4i second) {
-  return first[0] < second[0];
+  return first[0] > second[0];
 }
 
 Vec4i calc_median(vector<Vec4i> pts) {
@@ -54,14 +55,15 @@ int main() {
   char buffer[64];
   while (running) {
     Mat frame = cam.getFrame();
-    cvtColor(frame, frame, CV_BGR2HSV);
-    inRange(frame, Scalar(0,0,155), Scalar(255, 255, 255), frame);
-    //inRange(frame, Scalar(0, 55, 55), Scalar(200, 150, 200), frame);
+    //cvtColor(frame, frame, CV_BGR2HSV);
+    inRange(frame, Scalar(40, 55, 55), Scalar(220, 175, 200), frame);
     GaussianBlur(frame, frame, Size(9,9), 9, 9);
-    //bitwise_not(frame, frame);
+    Mat kernel = getStructuringElement(MORPH_RECT, Size(20, 20));
+    morphologyEx(frame, frame, MORPH_CLOSE, kernel);
+    bitwise_not(frame, frame);
     vector<Vec4i> lines;
     vector<Vec4i> horizontals = vector<Vec4i>();
-    HoughLinesP(frame, lines, 1, CV_PI/180, 200, 30, 10);
+    HoughLinesP(frame, lines, 1, CV_PI/180, 300, 30, 10);
     cvtColor(frame, frame, CV_GRAY2BGR);
     for (int i = 0; i < lines.size(); i++) {
       double yd = (lines[i][3] - lines[i][2]);
@@ -86,17 +88,24 @@ int main() {
     //  else, goal is cold
     //
     if (horizontals.size() > 0) {
+      for (int i = 0; i < horizontals.size(); i++) {
+        circle(frame, Point(horizontals[i][0], horizontals[i][1]), 5, Scalar(255, 0, 255));
+      }
       printf("Median: ");
       Vec4i median = calc_median(horizontals);
       printVec(median);
       vector<Vec4i> newSet = exterminate_in_range(horizontals, median, MIN_HORIZ_ERR);
       line(frame, Point(median[0], 0), Point(median[0], frame.size().height), Scalar(0,255,0), 3, 8);
       if (newSet.size() > 0) {
+        for (int i = 0; i < newSet.size(); i++) {
+          circle(frame, Point(newSet[i][0], newSet[i][1]), 5, Scalar(0, 255, 0));
+        }
         median = calc_median(newSet);
         line(frame, Point(median[0], 0), Point(median[0], frame.size().height), Scalar(255,0,0), 3, 8);
         printVec(median);
-        if ((num_in_range(newSet, median, MIN_HORIZ_ERR) * 4) > newSet.size()) {
-          printf("I THINK WE FOUND A HOT ONE!\n");
+        int num = num_in_range(newSet, median, MIN_HORIZ_ERR);
+        if ((num * N_CLOSE) > newSet.size()) {
+          printf("I THINK WE FOUND A HOT ONE! (%d of %lu)\n", num, newSet.size());
         }
         printf("\n");
       } // Else we are derp
