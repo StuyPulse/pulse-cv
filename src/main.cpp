@@ -10,8 +10,8 @@ using namespace std;
 using namespace cv;
 
 #define MAX_SLOPE_ERR 3.0f
-#define MIN_HORIZ_ERR 40
-#define N_CLOSE 2
+#define MIN_HORIZ_ERR 50
+#define N_CLOSE 10
 
 void printVec(Vec4i vec) {
   printf("%d, %d to %d, %d\n", vec[0], vec[1], vec[2], vec[3]);
@@ -56,14 +56,14 @@ int main() {
   while (running) {
     Mat frame = cam.getFrame();
     //cvtColor(frame, frame, CV_BGR2HSV);
-    inRange(frame, Scalar(40, 55, 55), Scalar(220, 175, 200), frame);
+    inRange(frame, /*Scalar(40, 55, 55),*/ Scalar(220, 175, 200), Scalar(255,255,255), frame);
     GaussianBlur(frame, frame, Size(9,9), 9, 9);
-    Mat kernel = getStructuringElement(MORPH_RECT, Size(20, 20));
+    Mat kernel = getStructuringElement(MORPH_RECT, Size(30, 30));
     morphologyEx(frame, frame, MORPH_CLOSE, kernel);
-    bitwise_not(frame, frame);
+    //bitwise_not(frame, frame);
     vector<Vec4i> lines;
     vector<Vec4i> horizontals = vector<Vec4i>();
-    HoughLinesP(frame, lines, 1, CV_PI/180, 300, 30, 10);
+    HoughLinesP(frame, lines, 1, CV_PI/180, 50, 30, 10);
     cvtColor(frame, frame, CV_GRAY2BGR);
     for (int i = 0; i < lines.size(); i++) {
       double yd = (lines[i][3] - lines[i][2]);
