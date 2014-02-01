@@ -10,6 +10,7 @@
 #define PORT 12345
 
 
+static int send_value;
 class NetSend {
 public:
   NetSend();

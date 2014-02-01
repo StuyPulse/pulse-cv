@@ -37,8 +37,18 @@ void* NetSend::init_server(void* threadarg) {
 
   // Bind the socket
   bind(socket_id, (struct sockaddr *)&server, sizeof(server));
+
+  // Listen to the socket
+  listen(socket_id, 0);
+
+  printf("Waiting for connection\n");
+  socklen_t l = sizeof(server);
+  accept(socket_id, (struct sockaddr *)&server, &l);
+  printf("Connected!\n");
   while (1) {
-    printf("Running!\n");
+
+    printf("Sending data: %d\n", send_value);
+    write(socket_id, &send_value, sizeof(send_value));
   }
   pthread_exit(NULL);
 }

@@ -85,10 +85,12 @@ int main() {
   }
 
   NetSend n = NetSend();
+  send_value = I_DONT_KNOW;
 
   n.start_server();
   sleep(1);
   n.stop_server();
+  while(1);
 
   Camera cam;
   namedWindow("frame");
@@ -156,6 +158,8 @@ int main() {
       }
     }
     curr_frame = ++curr_frame % num_frames;
+
+    send_value = final_out_to_bot(last_frames, num_frames);
     imshow("frame", frame);
     waitKey(30);
   }
