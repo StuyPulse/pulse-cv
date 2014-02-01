@@ -5,13 +5,18 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include "camera/camera.h"
+#include "net/netsend.h"
 
 using namespace std;
 using namespace cv;
 
 #define MAX_SLOPE_ERR 3.0f
-#define MIN_HORIZ_ERR 50
+#define MIN_HORIZ_ERR 20
 #define N_CLOSE 10
+
+#define I_DONT_KNOW 0
+#define FRAME_SEEN 1
+#define FRAME_UNSEEN 2
 
 void printVec(Vec4i vec) {
   printf("%d, %d to %d, %d\n", vec[0], vec[1], vec[2], vec[3]);
@@ -48,7 +53,43 @@ size_t num_in_range(vector<Vec4i> pts, Vec4i mid, int range) {
   return num;
 }
 
+int final_out_to_bot(int* last_frames, int num_frames) {
+  int num_unknown = 0;
+  int num_seen = 0;
+  int num_unseen = 0;
+  for(int i=0;i<num_frames;i++){
+    switch(last_frames[i]) {
+      case I_DONT_KNOW:
+        num_unknown++;
+        break;
+      case FRAME_SEEN:
+        num_seen++;
+        break;
+      default:
+        num_unseen++;
+    }
+  }
+  if(num_seen>0)
+    return FRAME_SEEN;
+  if(num_unknown>0)
+    return I_DONT_KNOW;
+  return FRAME_UNSEEN;
+}
+
 int main() {
+  const int num_frames = 10;
+  int curr_frame = 0;
+  int last_frames[num_frames]; // Values of last handful of frames
+  for (int i = 0; i < num_frames; i++) {
+    last_frames[i] = I_DONT_KNOW;
+  }
+
+  NetSend n = NetSend();
+
+  n.start_server();
+  sleep(1);
+  n.stop_server();
+
   Camera cam;
   namedWindow("frame");
   bool running = true;
@@ -56,11 +97,10 @@ int main() {
   while (running) {
     Mat frame = cam.getFrame();
     //cvtColor(frame, frame, CV_BGR2HSV);
-    inRange(frame, /*Scalar(40, 55, 55),*/ Scalar(220, 175, 200), Scalar(255,255,255), frame);
+    inRange(frame, Scalar(220, 175, 200), Scalar(255,255,255), frame);
     GaussianBlur(frame, frame, Size(9,9), 9, 9);
     Mat kernel = getStructuringElement(MORPH_RECT, Size(30, 30));
     morphologyEx(frame, frame, MORPH_CLOSE, kernel);
-    //bitwise_not(frame, frame);
     vector<Vec4i> lines;
     vector<Vec4i> horizontals = vector<Vec4i>();
     HoughLinesP(frame, lines, 1, CV_PI/180, 50, 30, 10);
@@ -105,14 +145,17 @@ int main() {
         printVec(median);
         int num = num_in_range(newSet, median, MIN_HORIZ_ERR);
         if ((num * N_CLOSE) > newSet.size()) {
+          last_frames[curr_frame] = FRAME_SEEN; // We've seen the target
           printf("I THINK WE FOUND A HOT ONE! (%d of %lu)\n", num, newSet.size());
+        } else {
+          last_frames[curr_frame] = FRAME_UNSEEN; // No target seen
         }
         printf("\n");
-      } // Else we are derp
+      } else {
+        last_frames[curr_frame] = FRAME_UNSEEN; // No target seen
+      }
     }
-    //Canny(frame, frame, 0, 30);
-    //GaussianBlur(frame, frame, Size(9,9), 9, 9);
-    //cvtColor(frame, frame, CV_HSV2BGR);
+    curr_frame = ++curr_frame % num_frames;
     imshow("frame", frame);
     waitKey(30);
   }
