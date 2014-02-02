@@ -27,6 +27,7 @@ void* NetSend::init_server(void* threadarg) {
   socklen_t socket_length;
 
   socket_id = socket(AF_INET, SOCK_STREAM, 0);
+  printf("socket id: %d\n", socket_id);
    
   // IPv4, yo
   server.sin_family = AF_INET;
@@ -47,6 +48,7 @@ void* NetSend::init_server(void* threadarg) {
   printf("Connected!\n");
   while (1) {
 
+    send_value = 1;
     printf("Sending data: %d\n", send_value);
     write(socket_id, &send_value, sizeof(send_value));
   }
