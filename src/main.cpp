@@ -18,10 +18,6 @@ using namespace cv;
 #define FRAME_SEEN 1
 #define FRAME_UNSEEN 2
 
-// This is awful and I should be ashamed of myself.
-#define line(...) /*...*/
-#define circle(...) /*...*/
-
 void printVec(Vec4i vec) {
   printf("%d, %d to %d, %d\n", vec[0], vec[1], vec[2], vec[3]);
 }
@@ -107,7 +103,7 @@ void target_seen(vector<Vec4i> newSet, Vec4i median, int* last_frames, int curr_
 }
 
 int main() {
-  const int num_frames = 10;
+  const int num_frames = 5;
   int curr_frame = 0;
   int last_frames[num_frames]; // Values of last handful of frames
   for (int i = 0; i < num_frames; i++) {
@@ -132,7 +128,6 @@ int main() {
     vector<Vec4i> lines;
     vector<Vec4i> horizontals;
     HoughLinesP(frame, lines, 3, CV_PI/5, 50, 30, 10);
-    cvtColor(frame, frame, CV_GRAY2BGR);
 
     horizontals = find_horizontals(lines);
 
@@ -153,9 +148,6 @@ int main() {
       vector<Vec4i> newSet = exterminate_in_range(horizontals, median, MIN_HORIZ_ERR);
       line(frame, Point(median[0], 0), Point(median[0], frame.size().height), Scalar(0,255,0), 3, 8);
       if (newSet.size() > 0) {
-        for (int i = 0; i < newSet.size(); i++) {
-          circle(frame, Point(newSet[i][0], newSet[i][1]), 5, Scalar(0, 255, 0));
-        }
         // Calculate second median
         median = calc_median(newSet);
         target_seen(newSet, median, last_frames, curr_frame);
