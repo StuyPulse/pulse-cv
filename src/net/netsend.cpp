@@ -37,14 +37,19 @@ void* NetSend::init_server(void* threadarg) {
   server.sin_port = htons(PORT);
 
   // Bind the socket
-  bind(socket_id, (struct sockaddr *)&server, sizeof(server));
+  int res = bind(socket_id, (struct sockaddr *)&server, sizeof(server));
+  if (res < 0) {printf("Binding failed.") ; }
+  //Check if "linger" code is necessary
 
   // Listen to the socket
-  listen(socket_id, 0);
+  res = listen(socket_id, 0);
+  if (res < 0) {printf("Listening failed.") ; }
 
   printf("Waiting for connection\n");
   socklen_t l = sizeof(server);
-  accept(socket_id, (struct sockaddr *)&server, &l);
+  //Do we need a different variable than server?
+  res = accept(socket_id, (struct sockaddr *)&server, &l);
+  if (res < 0) {printf("Accepting failed.") ; }
   printf("Connected!\n");
   while (1) {
 
