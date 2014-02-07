@@ -6,17 +6,19 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
+#include <err.h>
+#include <errno.h>
+#include <string.h>
 
 #define PORT 12345
 
-
-static int send_value;
 class NetSend {
 public:
   NetSend();
   NetSend* getInstance();
   int start_server();
   int stop_server();
+  int send_value;
 private:
   static NetSend* instance;
   static void* init_server(void* threadarg);

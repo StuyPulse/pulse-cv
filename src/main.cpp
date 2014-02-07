@@ -56,6 +56,7 @@ int final_out_to_bot(int* last_frames, int num_frames) {
   int num_seen = 0;
   int num_unseen = 0;
   for(int i=0;i<num_frames;i++){
+    printf("Frame %d: %d\n", i, last_frames[i]);
     switch(last_frames[i]) {
       case I_DONT_KNOW:
         num_unknown++;
@@ -67,10 +68,15 @@ int final_out_to_bot(int* last_frames, int num_frames) {
         num_unseen++;
     }
   }
-  if(num_seen>0)
-    return FRAME_SEEN;
-  if(num_unknown>0)
+  if(num_seen>0) {
+     printf("FRAME_SEEN\n");
+     return FRAME_SEEN;
+   }
+  if(num_unknown>0) {
+    printf("I_DONT_KNOW\n");
     return I_DONT_KNOW;
+  }
+  printf("FRAME_UNSEEN\n");
   return FRAME_UNSEEN;
 }
 void apply_filters(Mat* input) {
@@ -111,7 +117,6 @@ int main() {
   }
 
   NetSend n = NetSend();
-  send_value = I_DONT_KNOW;
 
   n.start_server();
 
@@ -151,11 +156,14 @@ int main() {
         // Calculate second median
         median = calc_median(newSet);
         target_seen(newSet, median, last_frames, curr_frame);
-      } 
+      } else {
+        last_frames[curr_frame] = FRAME_UNSEEN;
+      }
     }
     curr_frame = ++curr_frame % num_frames;
 
-    send_value = final_out_to_bot(last_frames, num_frames);
+    n.send_value = final_out_to_bot(last_frames, num_frames);
+    printf("Final Value: %d\n", n.send_value);
   }
 
   return 0;

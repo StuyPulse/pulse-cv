@@ -4,9 +4,8 @@
 #include <curl/curl.h>
 
 #define USE_WEBCAM false
-//#define USE_WEBCAM true
-//#define IMG_URL "http://10.6.94.12/axis-cgi/jpg/image.cgi"
-#define IMG_URL "http://localhost:8000//Felis_silvestris_silvestris.jpg"
+#define IMG_URL "http://10.6.94.12/axis-cgi/jpg/image.cgi"
+//#define IMG_URL "http://localhost:8000//Felis_silvestris_silvestris.jpg"
 
 using namespace cv;
 using namespace std;

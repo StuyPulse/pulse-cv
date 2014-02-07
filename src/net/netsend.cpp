@@ -9,7 +9,7 @@ int NetSend::start_server() {
   pthread_attr_init(&attr); // Initialize attr
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE); // make the attribute have JOINABLE option
 
-  thread_id = pthread_create(&thread, &attr, &init_server, (void*)NULL); // thread out
+  thread_id = pthread_create(&thread, &attr, &init_server, (void*)&send_value); // thread out
 
   return 0;
 }
@@ -23,7 +23,7 @@ void* NetSend::init_server(void* threadarg) {
   int socket_id, socket_client;
   char buffer[256];
 
-  struct sockaddr_in server;
+  struct sockaddr_in server, client;
   socklen_t socket_length;
 
   socket_id = socket(AF_INET, SOCK_STREAM, 0);
@@ -46,16 +46,16 @@ void* NetSend::init_server(void* threadarg) {
   if (res < 0) {printf("Listening failed.") ; }
 
   printf("Waiting for connection\n");
-  socklen_t l = sizeof(server);
+  socklen_t l = sizeof(client);
   //Do we need a different variable than server?
-  res = accept(socket_id, (struct sockaddr *)&server, &l);
+  res = accept(socket_id, (struct sockaddr *)&client, &l);
   if (res < 0) {printf("Accepting failed.") ; }
   printf("Connected!\n");
   while (1) {
 
-    send_value = 1;
-    printf("Sending data: %d\n", send_value);
-    write(socket_id, &send_value, sizeof(send_value));
+    //printf("Sending data: %d\n", send_value);
+    int wrval = write(res, threadarg, sizeof(int));
+    if (wrval == -1) printf("Failed write: %s\n", strerror(errno));
   }
   pthread_exit(NULL);
 }
