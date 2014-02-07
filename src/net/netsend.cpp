@@ -56,6 +56,8 @@ void* NetSend::init_server(void* threadarg) {
     //printf("Sending data: %d\n", send_value);
     int wrval = write(res, threadarg, sizeof(int));
     if (wrval == -1) printf("Failed write: %s\n", strerror(errno));
+
+    read(res, buffer, sizeof(buffer));
   }
   pthread_exit(NULL);
 }

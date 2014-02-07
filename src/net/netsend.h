@@ -18,7 +18,7 @@ public:
   NetSend* getInstance();
   int start_server();
   int stop_server();
-  int send_value;
+  char send_value;
 private:
   static NetSend* instance;
   static void* init_server(void* threadarg);

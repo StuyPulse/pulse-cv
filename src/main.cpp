@@ -162,8 +162,8 @@ int main() {
     }
     curr_frame = ++curr_frame % num_frames;
 
-    n.send_value = final_out_to_bot(last_frames, num_frames);
-    printf("Final Value: %d\n", n.send_value);
+    n.send_value = (char) final_out_to_bot(last_frames, num_frames);
+    printf("Final Value: %c\n", n.send_value);
   }
 
   return 0;
