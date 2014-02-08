@@ -6,7 +6,6 @@
 #include <opencv2/highgui/highgui.hpp>
 #include "camera/camera.h"
 #include "net/netsend.h"
-#include <chrono>
 
 using namespace std;
 using namespace cv;
@@ -117,10 +116,6 @@ int main() {
     last_frames[i] = I_DONT_KNOW;
   }
 
-  std::chrono::steady_clock::time_point start, end;
-  double totalTime = 0;
-  int iterations = 0;
-
   NetSend n = NetSend();
 
   n.start_server();
@@ -131,7 +126,6 @@ int main() {
   char buffer[64];
   while (running) {
 
-    start = std::chrono::steady_clock::now();
     Mat frame = cam.getFrame();
 
     apply_filters(&frame);
@@ -169,11 +163,6 @@ int main() {
     curr_frame = ++curr_frame % num_frames;
 
     n.send_value = (char) final_out_to_bot(last_frames, num_frames);
-    end = std::chrono::steady_clock::now();
-    iterations++;
-    using namespace std::chrono;
-    totalTime += duration<int, std::milli>(duration_cast<duration<int, std::milli> >(end-start)).count();
-    printf("Avg time: %f fps\n", 1000 * iterations/totalTime);
     printf("Final Value: %c\n", n.send_value);
   }
 
