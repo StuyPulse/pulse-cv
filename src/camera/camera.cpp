@@ -36,10 +36,15 @@ Mat Camera::getFrame() {
   curl_easy_setopt(easyhandle, CURLOPT_WRITEDATA, pFile);
   int success = curl_easy_perform(easyhandle);
   curl_easy_cleanup(easyhandle);
-  fclose(pFile);
 
-  Mat out = imread("img.jpg");
-  //remove("img.jpg");
-  return out;
+  if (success == 0) {
+    fclose(pFile);
+
+    Mat out = imread("img.jpg");
+    //remove("img.jpg");
+    return out;
+  } else {
+    return Mat();
+  }
 #endif
 }
