@@ -44,7 +44,7 @@ Mat Camera::getFrame() {
     //remove("img.jpg");
     return out;
   } else {
-    return Mat();
+    return imread("default.jpg"); // Return a default, all black, image
   }
 #endif
 }
