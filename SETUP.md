@@ -30,20 +30,6 @@ We're going to want an internet connection for this next part, so:
     (For Windows machines, go to Network and Sharing Center, and then go to "Adapter Settings".
     Find the wireless properties and enable the network sharing options.)
     
-  Then, using an cross-over ethernet cable and connect the Raspberry Pi to your computer with sharing.
-  
-  Turn on the Raspberry Pi, and once logged in, do
-  
-  `sudo vi /etc/apt/apt.conf`
-    
-  Once in the editor, type in on the first line 
-    
-  `Acquire::http::Proxy "http://filtr.nycboe.org:8002`
-    
-  Save it and exit with 
-    
-  `:wq`
-  
 
 Now that we have an internet connection, we can update the software list on the Pi with
 
@@ -62,12 +48,27 @@ Accept all the "Are you sure?" prompts, wait a little while, and, if you do it a
 Step 3: Acquiring the CV files from github.
 -------------------------------------------
 
-Do 
-  'clear'
-and then type in:
+The next step would to get the actual code, which is on github.
 
-  `git clone https://github.com/prog694/pulse-cv.git`
+do:
+  `git clone https://github.com/prog694/pulse-cv.git` to get the repo.
 
 Change the git link if trying to acquire another repo.
 
 When asked for your username and pass, enter them. Allow all the files to be cloned to the Pi.
+
+
+
+Step 4: Setting up pi to connect with the axis camera.
+--------------------------------------------------------
+
+The code will not work without the camera. So to connect the pi to the camera you would need to set the static ip of the pi.
+
+To set the ip, edit the file containing the settings by doing:
+  `sudo vi /etc/network/interfaces` 
+
+So you should comment out the line:
+  `iface eth0 inet dhcp` 
+by putting a "#" symbol in front of the line, which looks like:
+  `#iface eth0 inet dhcp`
+If the symbol turns out to be a british symbol "£" you need to set the keyboard to US input method(go to the change keyboard section).
