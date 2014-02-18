@@ -96,8 +96,10 @@ Then we make it executable:
 Register script to be run at startup:
   `sudo update-rc.d`
   
-******************************************************************
+
+
 Change Keyboard input method
+--------------------------------
 
 Edit the keyboard setting file:
   `sudo vi /etc/default/keyboard`
