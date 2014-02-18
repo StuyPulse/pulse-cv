@@ -69,6 +69,40 @@ To set the ip, edit the file containing the settings by doing:
 
 So you should comment out the line:
   `iface eth0 inet dhcp` 
-by putting a "#" symbol in front of the line, which looks like:
-  `#iface eth0 inet dhcp`
+
+by putting a "#" symbol in front of the line, because when you need to connect to the internet you would need to uncomment it.
+
 If the symbol turns out to be a british symbol "£" you need to set the keyboard to US input method(go to the change keyboard section).
+
+Add the lines as its own section:
+  `iface eth0 inet static`
+  `address 10.6.94.XXX` -- XXX being what your want it to be
+  `netmask 255.255.0.0`
+  
+Save the file.
+
+Now you should be able to run the CV code by going in to the src directory and running:
+  `make run`
+  
+
+
+Making the pi run the program from boot up
+------------------------------------------
+
+Using the script in this repository named: "cv", we move that file to the startup folder "init.d" :
+  `sudo mv cv /etc/init.d/`
+Then we make it executable:
+  `sudo chmod /etc/init.d/cv`
+Register script to be run at startup:
+  `sudo update-rc.d`
+  
+******************************************************************
+Change Keyboard input method
+
+Edit the keyboard setting file:
+  `sudo vi /etc/default/keyboard`
+
+Change the XKBLAYOUT into US:
+  `XKBLAYOUT:"us"`
+  
+Reboot Raspberry pi.
