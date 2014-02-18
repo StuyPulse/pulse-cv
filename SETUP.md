@@ -79,7 +79,9 @@ If the symbol turns out to be a british symbol "£" you need to set the keyboard
 Add the lines as its own section:
 
   `iface eth0 inet static`
+  
   `address 10.6.94.XXX` -- XXX being what your want it to be
+  
   `netmask 255.255.0.0`
   
 Save the file.
