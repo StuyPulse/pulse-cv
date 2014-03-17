@@ -125,6 +125,9 @@ int main() {
   Mat mask; // Mask of pixels we should look at
   mask = cam.getFrame(); // Should be run with LEDs off, in position
   apply_filters(&mask); // Detect bright shapes (lights, other ambient light sources)
+  Mat kernel = getStructuringElement(MORPH_RECT, Size(15, 15));
+  dilate(mask, mask, kernel);
+  inRange(mask, Scalar(1, 1, 1), Scalar(255,255,255), mask); // Make them black. No halfways here.
   bitwise_not(mask, mask); // Invert to make it a mask of areas we should look at, not ones we shouldn't
 
   bool running = true;
@@ -169,6 +172,7 @@ int main() {
     }
     curr_frame = ++curr_frame % num_frames;
 
+    waitKey(1);
     n.send_value = (char) final_out_to_bot(last_frames, num_frames);
     printf("Final Value: %c\n", n.send_value);
   }
