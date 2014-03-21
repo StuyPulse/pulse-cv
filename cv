@@ -4,7 +4,8 @@ case "$1" in
 	start)
 		mv /var/log/cv.log /var/log/cvlogs/`date +%s`.log
 		rm `find -atime 4 /var/log/cvlogs` 
-		/home/pi/pulse-cv/cv.out > /var/log/cv.log &
+    cd /home/pi/pulse-cv
+		./cv.out > /var/log/cv.log &
 		;;
 	stop)
 		killall cv.out
