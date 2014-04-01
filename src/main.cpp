@@ -1,4 +1,4 @@
-#include <string>
+
 #include <vector>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
@@ -6,12 +6,13 @@
 #include <opencv2/highgui/highgui.hpp>
 #include "camera/camera.h"
 #include "net/netsend.h"
+#include "wire.h"
 
 using namespace std;
 using namespace cv;
 
 #define MAX_SLOPE_ERR 3.0f
-#define MIN_HORIZ_ERR 10
+#define MIN_HORIZ_ERR 20
 #define N_CLOSE 10
 
 #define I_DONT_KNOW 0
@@ -31,6 +32,7 @@ Vec4i calc_median(vector<Vec4i> pts) {
 
 vector<Vec4i> exterminate_in_range(vector<Vec4i> pts, Vec4i mid, int range) {
   vector<Vec4i> results = vector<Vec4i>();
+results.reserve(pts.size());
   for (int i = 0; i < pts.size(); i++) {
     if (abs(pts[i][0] - mid[0]) >= range) {
       results.push_back(pts[i]);
@@ -82,12 +84,13 @@ int final_out_to_bot(int* last_frames, int num_frames) {
 void apply_filters(Mat* input) {
     inRange(*input, Scalar(220, 175, 200), Scalar(255,255,255), *input);
     GaussianBlur(*input, *input, Size(9,9), 9, 9);
-    Mat kernel = getStructuringElement(MORPH_RECT, Size(30, 30));
+    const Mat kernel = getStructuringElement(MORPH_RECT, Size(30, 30));
     morphologyEx(*input, *input, MORPH_CLOSE, kernel);
 }
 
 vector<Vec4i> find_horizontals(Vector<Vec4i> lines) {
   vector<Vec4i> horizontals = vector<Vec4i>();
+horizontals.reserve(lines.size());
   for (int i = 0; i < lines.size(); i++) {
     double yd = (lines[i][3] - lines[i][2]);
     double xd = (lines[i][1] - lines[i][0]);
@@ -111,16 +114,18 @@ void target_seen(vector<Vec4i> newSet, Vec4i median, int* last_frames, int curr_
 int main() {
   //namedWindow("mask");
   //namedWindow("cam");
-  const int num_frames = 5;
+  const int num_frames = 2;
   int curr_frame = 0;
   int last_frames[num_frames]; // Values of last handful of frames
   for (int i = 0; i < num_frames; i++) {
     last_frames[i] = I_DONT_KNOW;
   }
 
-  NetSend n = NetSend();
+  //NetSend n = NetSend();
 
-  n.start_server();
+  //n.start_server();
+
+  init_pin();
 
   Camera cam;
 
@@ -133,7 +138,6 @@ int main() {
   //bitwise_not(mask, mask); // Invert to make it a mask of areas we should look at, not ones we shouldn't
 
   bool running = true;
-  char buffer[64];
   while (running) {
 
     Mat frame = cam.getFrame();
@@ -166,7 +170,7 @@ int main() {
 
       Vec4i median = calc_median(horizontals);
       vector<Vec4i> newSet = exterminate_in_range(horizontals, median, MIN_HORIZ_ERR);
-      line(frame, Point(median[0], 0), Point(median[0], frame.size().height), Scalar(0,255,0), 3, 8);
+      //line(frame, Point(median[0], 0), Point(median[0], frame.size().height), Scalar(0,255,0), 3, 8);
       if (newSet.size() > 0) {
         // Calculate second median
         median = calc_median(newSet);
@@ -177,9 +181,12 @@ int main() {
     }
     curr_frame = ++curr_frame % num_frames;
 
-    waitKey(1);
-    n.send_value = (char) final_out_to_bot(last_frames, num_frames);
-    printf("Final Value: %c\n", n.send_value);
+    //waitKey(1);
+    //n.send_value = (char) final_out_to_bot(last_frames, num_frames);
+    int send_value = final_out_to_bot(last_frames, num_frames) == FRAME_SEEN \
+                                                                      ? 1 : 0;
+    set_pin(send_value);
+    printf("Final Value: %d\n", send_value);
   }
 
   return 0;

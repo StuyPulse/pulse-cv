@@ -15,8 +15,8 @@ void init_pin() {
 	close(fd);
 
 	char path[256];
-	sprintf(path, "/sys/class/gpio/gpio%d/direction", PIN)
-		fd= open(path, O_WRONLY);
+	sprintf(path, "/sys/class/gpio/gpio%d/direction", PIN);
+  fd = open(path, O_WRONLY);
 	if (fd == -1) {
 		printf("failed to open direction setter\n");
 		return;
