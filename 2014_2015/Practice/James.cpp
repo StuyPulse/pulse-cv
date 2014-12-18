@@ -19,20 +19,25 @@ int main(int, char**) {
 
 	//Code here!
 	
-	Mat A; 
+	Mat HSV;
+	Mat Green;
+	
 	cvNamedWindow("Window" , CV_WINDOW_NORMAL);
 
 	for(;;) {
-		cap >> A;
-		GaussianBlur(A , A , Size(5,5) , 1.5 , 1.5);
-		inRange(A, Scalar(0, 0, 0), Scalar(0, 255, 0), A);
-		cvtColor(A , A , CV_BGR2HSV);
-		erode(A , A , getStructuringElement(MORPH_RECT , Size(5,5));
-		dilate(A , A , getStructuringElement(MORPH_RECT , Size(5,5));
-		dilate(A , A , getStructuringElement(MORPH_RECT , Size(5,5));
-		erode(A , A , getStructuringElement(MORPH_RECT , Size(5,5));
-		imshow("Window" , A );
- 
+		Mat Original;
+		cap >> Original;
+		cvtColor(Original , HSV , CV_BGR2HSV);
+		inRange(HSV, Scalar(42, 0, 0), Scalar(73, 255, 255), Green);
+		GaussianBlur(Green , Green , Size(5,5) , 1.5 , 1.5);
+		erode(Green , Green , getStructuringElement(MORPH_RECT , Size(5,5)));
+		dilate(Green , Green , getStructuringElement(MORPH_RECT , Size(5,5)));
+		dilate(Green , Green , getStructuringElement(MORPH_RECT , Size(5,5)));
+		erode(Green , Green , getStructuringElement(MORPH_RECT , Size(5,5)));
+		imshow("Window", Green );
+ 		if(waitKey(30) >= 0) {
+			break;
+		}
 	}
 		
 
