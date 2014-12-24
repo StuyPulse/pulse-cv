@@ -79,7 +79,8 @@ int main() {
 	imgDetect();
 	/*
 	 * What Happens:
-	 * 	sublimau5@PFRuojia:~/Development/CV2015/pulse-cv/2014_2015/Practice/QuadrilateralDetect/Solution$ g++ QuadDetect.cpp -o QuadDetect.out `pkg-config --libs --cflags opencv`sublimau5@PFRuojia:~/Development/CV2015/pulse-cv/2014_2015/Practice/QuadrilateralDetect/Solution$ ./QuadDetect.out
+	 * 	sublimau5@PFRuojia:~/Development/CV2015/pulse-cv/2014_2015/Practice/QuadrilateralDetect/Solution$ g++ QuadDetect.cpp -o QuadDetect.out `pkg-config --libs --cflags opencv`
+	 * 	sublimau5@PFRuojia:~/Development/CV2015/pulse-cv/2014_2015/Practice/QuadrilateralDetect/Solution$ ./QuadDetect.out
 		Number of detected quadrilaterals: 0
 		Number of detected quadrilaterals: 2
 		Number of detected quadrilaterals: 1
