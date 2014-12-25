@@ -65,19 +65,25 @@ bool foundTwoOrangeRects(Mat frame) {
 }
 
 int main() {
-	VideoCapture cap(0); //Will be changed to get image from the Axis camera
-	if (!cap.isOpened()) {
-		cout << "Webcam not found" << endl;
+	Mat h = imread("HOT.png");
+	Mat c = imread("COLD.png");
+	if (h.empty()) {
+		cout << "HOT.png not found" << endl;
 		return -1;
 	}
- 	Mat currImg;
-	for(;;) {
-		cap >> currImg;
-		if (foundTwoOrangeRects(currImg)) {
-			cout << "HOT" << endl;
-		} else {
-			cout << "COLD" << endl;
-		}
+	if (c.empty()) {
+		cout << "COLD.png not found" << endl;
+		return -1;
+	}
+	if (foundTwoOrangeRects(h)) {
+		cout << "HOT" << endl;
+	} else {
+		cout << "COLD" << endl;
+	}
+	if (foundTwoOrangeRects(c)) {
+		cout << "HOT" << endl;
+	} else {
+		cout << "COLD" << endl;
 	}
 	return 0;
 }
