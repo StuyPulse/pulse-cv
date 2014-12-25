@@ -31,7 +31,7 @@ int polygonDetect(Mat src , int verts) {
 	Mat edges;
 	Canny(grey , edges , 0 , 100 , 5);
 	vector<vector<Point> > contours;
-	findContours(edges.clone() , contours , CV_RETR_EXTERNAL , CV_CHAIN_APPROX_SIMPLE);
+	findContours(edges , contours , CV_RETR_EXTERNAL , CV_CHAIN_APPROX_SIMPLE);
 	vector<Point> approx;
 	Mat dest = src.clone();
 	for (int i = 0; i < contours.size(); i++) {
