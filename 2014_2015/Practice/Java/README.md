@@ -14,6 +14,7 @@ Imshow source libraries should say: /path/to/Imshow.jar/ImShow-Java-OpenCV/ImSho
 Note:
 
 .jar files for opencv are located:
+
 Linux: /usr/share/OpenCV/java
 
 OS X: /usr/local/Cellar/opencv/2.4.9/share/OpenCV/java
