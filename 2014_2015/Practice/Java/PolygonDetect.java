@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -16,19 +17,26 @@ public class PolygonDetect {
 			System.out.println("Image not found.");
 			return -1;
 		}
-		Mat gray = new Mat();
 		int polyFound = 0;
-		Imgproc.cvtColor(src , gray , Imgproc.COLOR_BGR2GRAY);
+		Mat gray = new Mat();
 		Mat edges = new Mat();
+		List<MatOfPoint> contour = new ArrayList<MatOfPoint>();
+		MatOfPoint2f MOP2f1 = null;
+		MatOfPoint2f MOP2f2 = null;
+		MatOfPoint contourMOP = null;
+		
+		Imgproc.cvtColor(src , gray , Imgproc.COLOR_BGR2GRAY);
 		Imgproc.Canny(gray, edges, 0, 100);
-		List<MatOfPoint> contour = new ArrayList<>();
 		Imgproc.findContours(edges, contour, null, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 		for (int i = 0 ; i < contour.size() ; i++) {
-			// Have to fix approxpolydp function & finish 'if' statement found below
-			MatOfPoint2f mat = new MatOfPoint2f((Point[]) contour.toArray());
-			Imgproc.approxPolyDP([i] , mat , 0.02 , true);
-			if(Math.abs(contourArea(contour[i]) < 10 || !isContourConvex(contour))) {
-				
+			contour.get(i).convertTo(MOP2f1, CvType.CV_32FC2);
+			Imgproc.approxPolyDP(MOP2f1 , MOP2f2 , 0.02 , true);
+			MOP2f2.convertTo(contourMOP, CvType.CV_32S);
+			if(Math.abs(Imgproc.contourArea(contour.get(i))) < 10 || Imgproc.isContourConvex(contourMOP)) {
+				continue;
+			}
+			if (contour.size() == poly) {
+				polyFound++;
 			}
 		}
 		return polyFound;
