@@ -57,6 +57,54 @@ Mat getGreen(Mat original) {
         return toReturn;
 }
 
+Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
+
+	Mat yellowEdge;
+	Mat greyEdge;
+	Mat greenEdge;
+	Mat dst;
+	vector<vector<Point> > yellowContours;
+        vector<vector<Point> > greyContours;
+        vector<vector<Point> > greenContours;
+
+	Rect yellowBounds = Rect(0,0,0,0);
+	Rect greyBounds = Rect(0,0,0,0);
+	Rect greenBounds = Rect(0,0,0,0);
+
+	Canny(yellow , yellowEdges , 0 , 100 , 5);
+	Canny(grey , greyEdge , 0 , 100 , 5);
+	Canny(green , greenEdges , 0 , 100 , 5);
+
+	findContours(yellowEdges , yellowContours , CV_RETR_EXTERNAL , CV_CHAIN_APPROX_SIMPLE);
+	findContours(greyEdges , greyContours , CV_RETR_EXTERNAL , CV_CHAIN_APPROX_SIMPLE);
+	findContours(greenEdges , greenContours , CV_RETR_EXTERNAL , CV_CHAIN_APPROX_SIMPLE);
+
+	if (yellowContours.size() > 0) {
+		vector<vector<Point> > temp;
+		temp.push_back(yellowContours.at(yellowContours.size() - 1));
+		yellowBounds = boundingRect(temp.at(0));
+	}
+	if (greyContours.size() > 0) {
+		vector<vector<Point> > temp;
+		temp.push_back(greyContours.at(greyContours.size() - 1));
+		greyBounds = boundingRect(temp.at(0));
+	}
+	if (greenContours.size() > 0) {
+		vector<vector<Point> > temp;
+		temp.push_back(greenContours.at(greenContours.size() - 1));
+		greenBounds = boundingRect(temp.at(0));
+	}
+
+	dst = original.clone();
+
+	//COLOR_HERE is just a place holder. Put real stuff in later
+
+	rectangle(dst , yellowBounds , COLOR_HERE , 1 , 8 , 0);
+	rectangle(dst , greyBounds , COLOR_HERE , 1 , 8 , 0);
+	rectangle(dst , greenBounds , COLOR_HERE , 1 , 8 , 0);
+
+}
+
 int main() {
 
 	VideoCapture cap(0);
