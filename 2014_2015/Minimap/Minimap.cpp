@@ -13,7 +13,7 @@ Mat getYellow(Mat original) {
 	Mat toReturn;
 	Mat HSV;
 	cvtColor(original , HSV , CV_BGR2HSV);
-	inRange(HSV , Scalar(26 , 40 , 64) , Scalar(33 , 255 , 255) , toReturn);
+	inRange(HSV , Scalar(26 , 30 , 32) , Scalar(33 , 255 , 255) , toReturn);
 	GaussianBlur(toReturn , toReturn , Size(3,3) , 1.5 , 1.5);
 /*
 	erode(toReturn , toReturn , getStructuringElement(MORPH_RECT, Size(3 , 3)) );
@@ -59,10 +59,10 @@ Mat getGreen(Mat original) {
 
 Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 
-	Mat yellowEdge;
-	Mat greyEdge;
-	Mat greenEdge;
-	Mat dst;
+	Mat yellowEdges;
+	Mat greyEdges;
+	Mat greenEdges;
+	Mat dst = original.clone();
 	vector<vector<Point> > yellowContours;
         vector<vector<Point> > greyContours;
         vector<vector<Point> > greenContours;
@@ -72,36 +72,41 @@ Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 	Rect greenBounds = Rect(0,0,0,0);
 
 	Canny(yellow , yellowEdges , 0 , 100 , 5);
-	Canny(grey , greyEdge , 0 , 100 , 5);
+	Canny(grey , greyEdges , 0 , 100 , 5);
 	Canny(green , greenEdges , 0 , 100 , 5);
 
 	findContours(yellowEdges , yellowContours , CV_RETR_EXTERNAL , CV_CHAIN_APPROX_SIMPLE);
 	findContours(greyEdges , greyContours , CV_RETR_EXTERNAL , CV_CHAIN_APPROX_SIMPLE);
 	findContours(greenEdges , greenContours , CV_RETR_EXTERNAL , CV_CHAIN_APPROX_SIMPLE);
 
-	if (yellowContours.size() > 0) {
-		vector<vector<Point> > temp;
-		temp.push_back(yellowContours.at(yellowContours.size() - 1));
-		yellowBounds = boundingRect(temp.at(0));
-	}
-	if (greyContours.size() > 0) {
-		vector<vector<Point> > temp;
-		temp.push_back(greyContours.at(greyContours.size() - 1));
-		greyBounds = boundingRect(temp.at(0));
-	}
-	if (greenContours.size() > 0) {
-		vector<vector<Point> > temp;
-		temp.push_back(greenContours.at(greenContours.size() - 1));
-		greenBounds = boundingRect(temp.at(0));
+	for (int i = 0; i < yellowContours.size(); i++) {
+		if (fabs(contourArea(yellowContours[i])) > 100) {
+			vector<vector<Point> > temp;
+			temp.push_back(yellowContours.at(yellowContours.size() - 1));
+			yellowBounds = boundingRect(temp.at(0));
+			rectangle(dst , yellowBounds , Scalar(29 , 222 , 253) , 1 , 8 , 0);
+		}
 	}
 
-	dst = original.clone();
+	for (int i = 0; i < greyContours.size(); i++) {
+		if (fabs(contourArea(greyContours[i])) > 100) {
+			vector<vector<Point> > temp;
+			temp.push_back(greyContours.at(greyContours.size() - 1));
+			greyBounds = boundingRect(temp.at(0));
+			rectangle(dst , greyBounds , Scalar(90 , 5 , 102) , 1 , 8 , 0);
+		}
+	}
 
-	//COLOR_HERE is just a place holder. Put real stuff in later
+	for(int i = 0; i < greenContours.size(); i++) {
+		if (fabs(contourArea(greenContours[i])) > 200) {
+			vector<vector<Point> > temp;
+			temp.push_back(greenContours.at(greenContours.size() - 1));
+			greenBounds = boundingRect(temp.at(0));
+			rectangle(dst , greenBounds , Scalar(58 , 254 , 254) , 1 , 8 , 0);
+		}
+	}
 
-	rectangle(dst , yellowBounds , COLOR_HERE , 1 , 8 , 0);
-	rectangle(dst , greyBounds , COLOR_HERE , 1 , 8 , 0);
-	rectangle(dst , greenBounds , COLOR_HERE , 1 , 8 , 0);
+	return dst;
 
 }
 
@@ -117,6 +122,7 @@ int main() {
 
 	Mat frame;
 	Mat yellow , grey , green;
+	Mat proxy;
 
 	for (;;) {
 		cap >> frame;
@@ -124,9 +130,14 @@ int main() {
 		grey = getGray(frame);
 		green = getGreen(frame);
 
-		imshow("Yellow" , yellow);
-		imshow("Grey" , grey);
-		imshow("Green" , green);
+
+//		imshow("Yellow" , yellow);
+//		imshow("Grey" , grey);
+//		imshow("Green" , green);
+
+
+		proxy = track(yellow , grey , green , frame);
+		imshow("Minimap" , proxy);
 
 		if(waitKey(30) >= 0) {
 			break;
