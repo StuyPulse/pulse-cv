@@ -82,7 +82,7 @@ Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 	for (int i = 0; i < yellowContours.size(); i++) {
 		if (fabs(contourArea(yellowContours[i])) > 100) {
 			vector<vector<Point> > temp;
-			temp.push_back(yellowContours.at(yellowContours.size() - 1));
+			temp.push_back(yellowContours.at(i));
 			yellowBounds = boundingRect(temp.at(0));
 			rectangle(dst , yellowBounds , Scalar(29 , 222 , 253) , 1 , 8 , 0);
 		}
@@ -91,7 +91,7 @@ Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 	for (int i = 0; i < greyContours.size(); i++) {
 		if (fabs(contourArea(greyContours[i])) > 100) {
 			vector<vector<Point> > temp;
-			temp.push_back(greyContours.at(greyContours.size() - 1));
+			temp.push_back(greyContours.at(i));
 			greyBounds = boundingRect(temp.at(0));
 			rectangle(dst , greyBounds , Scalar(90 , 5 , 102) , 1 , 8 , 0);
 		}
@@ -100,7 +100,7 @@ Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 	for(int i = 0; i < greenContours.size(); i++) {
 		if (fabs(contourArea(greenContours[i])) > 200) {
 			vector<vector<Point> > temp;
-			temp.push_back(greenContours.at(greenContours.size() - 1));
+			temp.push_back(greenContours.at(i));
 			greenBounds = boundingRect(temp.at(0));
 			rectangle(dst , greenBounds , Scalar(58 , 254 , 254) , 1 , 8 , 0);
 		}
