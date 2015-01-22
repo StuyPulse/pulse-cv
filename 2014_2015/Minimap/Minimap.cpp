@@ -1,3 +1,10 @@
+//	Compile with:
+//	clang++ Minimap.cpp `pkg-config --libs --cflags opencv` -O2
+
+//	MicroSoft HD 3000 Webcam Angle of View:
+//	Horizontal: 51 Deg
+//	Vertical: 30 Deg
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
