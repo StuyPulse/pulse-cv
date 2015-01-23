@@ -1,0 +1,7 @@
+h = height camera from ground
+@ = angle between fklift and camera (tilt)
+l = length of image
+w = width of image
+
+l = 2hsin@ / (cos^2 @)
+w = h * (tan@ + 1/rt3) / (1 - (tan@)/rt3)

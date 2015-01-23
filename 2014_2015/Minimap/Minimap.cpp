@@ -91,7 +91,7 @@ Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 			vector<vector<Point> > temp;
 			temp.push_back(yellowContours.at(i));
 			yellowBounds = boundingRect(temp.at(0));
-			rectangle(dst , yellowBounds , Scalar(29 , 222 , 253) , 1 , 8 , 0);
+			rectangle(dst , yellowBounds , Scalar(29 , 222 , 253) , 3 , 8 , 0);
 		}
 	}
 
@@ -100,7 +100,7 @@ Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 			vector<vector<Point> > temp;
 			temp.push_back(greyContours.at(i));
 			greyBounds = boundingRect(temp.at(0));
-			rectangle(dst , greyBounds , Scalar(90 , 5 , 102) , 1 , 8 , 0);
+			rectangle(dst , greyBounds , Scalar(90 , 5 , 102) , 3 , 8 , 0);
 		}
 	}
 
@@ -109,7 +109,7 @@ Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 			vector<vector<Point> > temp;
 			temp.push_back(greenContours.at(i));
 			greenBounds = boundingRect(temp.at(0));
-			rectangle(dst , greenBounds , Scalar(58 , 254 , 254) , 1 , 8 , 0);
+			rectangle(dst , greenBounds , Scalar(58 , 254 , 254) , 3 , 8 , 0);
 		}
 	}
 
