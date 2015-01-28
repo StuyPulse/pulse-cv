@@ -16,6 +16,8 @@
 using namespace std;
 using namespace cv;
 
+
+
 Mat getYellow(Mat original) {
 	Mat toReturn;
 	Mat HSV;
@@ -91,7 +93,7 @@ Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 			vector<vector<Point> > temp;
 			temp.push_back(yellowContours.at(i));
 			yellowBounds = boundingRect(temp.at(0));
-			rectangle(dst , yellowBounds , Scalar(255 , 255 , 0) , 3 , 8 , 0);
+			rectangle(dst , yellowBounds , Scalar(0 , 255 , 255) , 3 , 8 , 0);
 		}
 	}
 
@@ -117,6 +119,12 @@ Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 
 }
 
+Mat drawObjOnMap(Mat minimap , Rect found) {
+		//Takes a found rectangle in track() and performs trig calculations to figure out distance away from the robot
+		//Draws the detected object on the minimap using circle(Mat& img, Point center, int radius, const Scalar& color, int thickness=1, int lineType=8, int shift=0)
+
+}
+
 int main() {
 
 	VideoCapture cap(0);
@@ -131,6 +139,8 @@ int main() {
 	Mat yellow , grey , green;
 	Mat proxy;
 
+	Mat minimap = Mat::zeros(256 , 256 , CV_8U3C);
+
 	for (;;) {
 		cap >> frame;
 		yellow = getYellow(frame);
@@ -140,7 +150,7 @@ int main() {
 
 //		imshow("Yellow" , yellow);
 //		imshow("Grey" , grey);
-		imshow("Green" , green);
+//		imshow("Green" , green);
 
 
 		proxy = track(yellow , grey , green , frame);
