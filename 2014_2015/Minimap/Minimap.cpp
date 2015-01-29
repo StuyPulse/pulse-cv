@@ -27,6 +27,13 @@ bool pointYAxisSort(const Point &a, const Point &b) {
     return a.y < b.y;
 }
 
+double camera_angle;
+double fieldofview_horizontal , fieldofview_vertical;
+int cameraheight; //In inches
+
+int img_height;
+int img_base;
+
 Mat minimap;
 
 Mat getYellow(Mat original) {
@@ -65,7 +72,7 @@ Mat getGreen(Mat original) {
         Mat toReturn;
         Mat HSV;
         cvtColor(original , HSV , CV_BGR2HSV);
-        inRange(HSV , Scalar(43 , 16 , 32) , Scalar(75 , 128 , 166) , toReturn);
+        inRange(HSV , Scalar(42 , 60 , 15) , Scalar(67 , 255 , 90) , toReturn);
 	GaussianBlur(toReturn , toReturn , Size(3,3) , 1.5 , 1.5);
 
         erode(toReturn , toReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
@@ -90,11 +97,13 @@ void drawObjOnMap(vector<Point> contours , int color) {
 
 		ycoor = contours.at(0).y;
 		height = contours.at(contours.size() - 1).y - ycoor;
-
+/*
 		cout << "xcoor: " << xcoor << endl;
 		cout << "ycoor: " << ycoor << endl;
 		cout << "width: " << width << endl;
 		cout << "height: " << height << endl;
+*/
+		//Formulas:
 
 		
 
@@ -144,6 +153,7 @@ Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 			temp.push_back(greyContours.at(i));
 			greyBounds = boundingRect(temp.at(numDraw));
 			rectangle(dst , greyBounds , Scalar(255 , 128 , 128) , 3 , 8 , 0);
+			drawObjOnMap(temp.at(numDraw) , 2);
 
 			numDraw++;
 		}
@@ -157,6 +167,7 @@ Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 			temp.push_back(greenContours.at(i));
 			greenBounds = boundingRect(temp.at(numDraw));
 			rectangle(dst , greenBounds , Scalar(0 , 255 , 128) , 3 , 8 , 0);
+			drawObjOnMap(temp.at(numDraw) , 3);
 
 			numDraw++;
 		}
@@ -168,7 +179,38 @@ Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 
 }
 
+void readconf() {
+	char buffer[32];
+	ifstream fin("cv.conf");
+	while (fin.good()) {
+		fin >> buffer;
+		cout << buffer << endl;
+		if (strcmp(buffer , "theta") == 0) {
+			fin >> camera_angle;
+		} else if (strcmp(buffer , "height") == 0) {
+			fin >> cameraheight;
+		} else if (strcmp(buffer , "vertviewangle") == 0) {
+			fin >> fieldofview_vertical;
+		} else if (strcmp(buffer , "horizviewangle") == 0) {
+			fin >> fieldofview_horizontal;
+		} else {
+			fin >> buffer;
+		}
+		cout << buffer << endl;
+	}
+
+/*
+	cout << camera_angle << endl;
+	cout << cameraheight << endl;
+	cout << fieldofview_vertical << endl;
+	cout << fieldofview_horizontal << endl;
+*/
+	fin.close();
+}
+
 int main() {
+
+	readconf();
 
 	VideoCapture cap(0);
 	cvNamedWindow("Window" , CV_WINDOW_NORMAL);
@@ -186,6 +228,12 @@ int main() {
 	Point roboCenter = Point(128 , 128);
 
 	circle(minimap , roboCenter , 2 , Scalar(0 , 0 , 255) , 2 , 8 , 0);
+
+	cap >> frame;
+	//Get size of image:
+
+	img_height = frame.rows;
+	img_base = frame.cols;
 
 	for (;;) {
 		cap >> frame;
