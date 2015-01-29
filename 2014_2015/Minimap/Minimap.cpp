@@ -11,12 +11,21 @@
 #include <opencv2/imgproc/types_c.h>
 #include <cmath>
 #include <iostream>
+#include <fstream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 using namespace cv;
 
+int xcoor , ycoor , width , height;
 
+bool pointXAxisSort(const Point &a, const Point &b) {
+    return a.x < b.x;
+}
+bool pointYAxisSort(const Point &a, const Point &b) {
+    return a.y < b.y;
+}
 
 Mat getYellow(Mat original) {
 	Mat toReturn;
@@ -88,40 +97,64 @@ Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 	findContours(greyEdges , greyContours , CV_RETR_EXTERNAL , CV_CHAIN_APPROX_SIMPLE);
 	findContours(greenEdges , greenContours , CV_RETR_EXTERNAL , CV_CHAIN_APPROX_SIMPLE);
 
+	vector<vector<Point> > temp;
+	int numDraw = 0;
+
 	for (int i = 0; i < yellowContours.size(); i++) {
 		if (fabs(contourArea(yellowContours[i])) > 500) {
-			vector<vector<Point> > temp;
 			temp.push_back(yellowContours.at(i));
-			yellowBounds = boundingRect(temp.at(0));
+			yellowBounds = boundingRect(temp.at(numDraw));
 			rectangle(dst , yellowBounds , Scalar(0 , 255 , 255) , 3 , 8 , 0);
+
+			numDraw++;
 		}
 	}
+
+	temp.clear();
+	numDraw = 0;
 
 	for (int i = 0; i < greyContours.size(); i++) {
 		if (fabs(contourArea(greyContours[i])) > 500) {
-			vector<vector<Point> > temp;
 			temp.push_back(greyContours.at(i));
-			greyBounds = boundingRect(temp.at(0));
+			greyBounds = boundingRect(temp.at(numDraw));
 			rectangle(dst , greyBounds , Scalar(255 , 128 , 128) , 3 , 8 , 0);
+
+			numDraw++;
 		}
 	}
 
+	temp.clear();
+	numDraw = 0;
+
 	for(int i = 0; i < greenContours.size(); i++) {
 		if (fabs(contourArea(greenContours[i])) > 1000) {
-			vector<vector<Point> > temp;
 			temp.push_back(greenContours.at(i));
-			greenBounds = boundingRect(temp.at(0));
+			greenBounds = boundingRect(temp.at(numDraw));
 			rectangle(dst , greenBounds , Scalar(0 , 255 , 128) , 3 , 8 , 0);
+
+			numDraw++;
 		}
 	}
+
+	temp.clear();
 
 	return dst;
 
 }
 
-Mat drawObjOnMap(Mat minimap , Rect found) {
+void drawObjOnMap(Mat minimap , vector<Point> contours , int color) {
 		//Takes a found rectangle in track() and performs trig calculations to figure out distance away from the robot
 		//Draws the detected object on the minimap using circle(Mat& img, Point center, int radius, const Scalar& color, int thickness=1, int lineType=8, int shift=0)
+
+		sort(contours.begin() , contours.end() , pointXAxisSort);
+
+		xcoor = contours.at(0).x;
+		width = contours.at(contours.size() - 1).x - xcoor;
+
+		sort(contours.begin() , contours.end() , pointYAxisSort);
+
+		ycoor = contours.at(0).y;
+		height = contours.at(contours.size() - 1).y - ycoor;
 
 }
 
@@ -139,7 +172,10 @@ int main() {
 	Mat yellow , grey , green;
 	Mat proxy;
 
-	Mat minimap = Mat::zeros(256 , 256 , CV_8U3C);
+	Mat minimap = Mat::zeros(256 , 256 , CV_8UC3);
+	Point roboCenter = Point(128 , 128);
+
+	circle(minimap , roboCenter , 2 , Scalar(0 , 0 , 255) , 2 , 8 , 0);
 
 	for (;;) {
 		cap >> frame;
@@ -154,7 +190,9 @@ int main() {
 
 
 		proxy = track(yellow , grey , green , frame);
-		imshow("Minimap" , proxy);
+		imshow("Detection" , proxy);
+
+		imshow("Minimap - CV" , minimap);
 
 		if(waitKey(30) >= 0) {
 			break;
