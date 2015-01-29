@@ -27,6 +27,8 @@ bool pointYAxisSort(const Point &a, const Point &b) {
     return a.y < b.y;
 }
 
+Mat minimap;
+
 Mat getYellow(Mat original) {
 	Mat toReturn;
 	Mat HSV;
@@ -75,6 +77,29 @@ Mat getGreen(Mat original) {
         return toReturn;
 }
 
+void drawObjOnMap(vector<Point> contours , int color) {
+		//Takes a found rectangle in track() and performs trig calculations to figure out distance away from the robot
+		//Draws the detected object on the minimap using circle(Mat& img, Point center, int radius, const Scalar& color, int thickness=1, int lineType=8, int shift=0)
+
+		sort(contours.begin() , contours.end() , pointXAxisSort);
+
+		xcoor = contours.at(0).x;
+		width = contours.at(contours.size() - 1).x - xcoor;
+
+		sort(contours.begin() , contours.end() , pointYAxisSort);
+
+		ycoor = contours.at(0).y;
+		height = contours.at(contours.size() - 1).y - ycoor;
+
+		cout << "xcoor: " << xcoor << endl;
+		cout << "ycoor: " << ycoor << endl;
+		cout << "width: " << width << endl;
+		cout << "height: " << height << endl;
+
+		
+
+}
+
 Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 
 	Mat yellowEdges;
@@ -105,6 +130,7 @@ Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 			temp.push_back(yellowContours.at(i));
 			yellowBounds = boundingRect(temp.at(numDraw));
 			rectangle(dst , yellowBounds , Scalar(0 , 255 , 255) , 3 , 8 , 0);
+			drawObjOnMap(temp.at(numDraw) , 1);
 
 			numDraw++;
 		}
@@ -142,22 +168,6 @@ Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 
 }
 
-void drawObjOnMap(Mat minimap , vector<Point> contours , int color) {
-		//Takes a found rectangle in track() and performs trig calculations to figure out distance away from the robot
-		//Draws the detected object on the minimap using circle(Mat& img, Point center, int radius, const Scalar& color, int thickness=1, int lineType=8, int shift=0)
-
-		sort(contours.begin() , contours.end() , pointXAxisSort);
-
-		xcoor = contours.at(0).x;
-		width = contours.at(contours.size() - 1).x - xcoor;
-
-		sort(contours.begin() , contours.end() , pointYAxisSort);
-
-		ycoor = contours.at(0).y;
-		height = contours.at(contours.size() - 1).y - ycoor;
-
-}
-
 int main() {
 
 	VideoCapture cap(0);
@@ -172,7 +182,7 @@ int main() {
 	Mat yellow , grey , green;
 	Mat proxy;
 
-	Mat minimap = Mat::zeros(256 , 256 , CV_8UC3);
+	minimap = Mat::zeros(256 , 256 , CV_8UC3);
 	Point roboCenter = Point(128 , 128);
 
 	circle(minimap , roboCenter , 2 , Scalar(0 , 0 , 255) , 2 , 8 , 0);
