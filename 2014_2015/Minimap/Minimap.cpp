@@ -34,6 +34,9 @@ int cameraheight; //In inches
 int img_height;
 int img_base;
 
+int minimapDraw_xcoor;
+int minimapDraw_ycoor;
+
 Mat minimap;
 
 Mat getYellow(Mat original) {

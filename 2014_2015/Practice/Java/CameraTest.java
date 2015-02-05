@@ -1,17 +1,12 @@
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-
-import javax.swing.JFrame;
-
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.highgui.VideoCapture;
+import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 import com.atul.JavaOpenCV.Imshow;
 
-@SuppressWarnings("serial")
-public class CameraTest extends JFrame implements KeyListener{
+public class CameraTest {
 
 	public static void binarilizeImage(Mat src , Mat bin_image , Imshow BIN_IMAGE_SHOW) {
 		Mat grey = new Mat();
@@ -28,12 +23,19 @@ public class CameraTest extends JFrame implements KeyListener{
 	public static void main(String[] args) {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		
+		Mat test1 = Highgui.imread("/Users/photoXin/Development/StuyPulse/pulse-cv/2014_2015/Practice/QuadrilateralDetect/QUAD2.png");
+		Mat test2 = Highgui.imread("/Users/photoXin/Development/StuyPulse/pulse-cv/2014_2015/Practice/QuadrilateralDetect/QUAD3.png");
+		
+		System.out.println(GreenDetect.polygonDetect(test1 , 4 , false));
+		System.out.println(GreenDetect.polygonDetect(test2 , 4 , false));
+		
+		/*
+		
 		Mat bin_image = new Mat();
 		Mat grey_image = new Mat();
 		Imshow BIN_IMAGE_SHOW = new Imshow("Binary Image");
 		Imshow GREY_IMAGE_SHOW = new Imshow("Greyscale Image");
 		Imshow DEF_IMAGE_SHOW = new Imshow("Unprocessed Image");
-		
 		
 		VideoCapture cap = new VideoCapture(0);
 		
@@ -50,31 +52,19 @@ public class CameraTest extends JFrame implements KeyListener{
 						DEF_IMAGE_SHOW.showImage(src);
 						binarilizeImage(src , bin_image , BIN_IMAGE_SHOW);
 						grayImage(src , grey_image , GREY_IMAGE_SHOW);
+						//BIN_IMAGE_SHOW.showImage(Test.getGreen(src));
 					}
 				} catch(Exception e) {
 					
 				}
 			}
 		}
-	}
-
-	@Override
-	public void keyPressed(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		if (arg0.getID() == KeyEvent.VK_ESCAPE) {
-			System.exit(0);
-		}
-	}
-
-	@Override
-	public void keyReleased(KeyEvent arg0) {
-		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public void keyTyped(KeyEvent arg0) {
-		// TODO Auto-generated method stub
+		*/
+		
+		
+		
+		
 		
 	}
 	

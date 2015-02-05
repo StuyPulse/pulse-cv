@@ -1,4 +1,4 @@
-import java.util.List;
+import java.util.ArrayList;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -7,7 +7,6 @@ import org.opencv.imgproc.Imgproc;
 
 public class GreenDetect {
 
-	@SuppressWarnings("null")
 	public static int polygonDetect(Mat src , int verts , boolean isGray) {
 		if (src.empty()) {
 			System.out.println("Source image for polygon detect empty. Returning -1");
@@ -22,10 +21,10 @@ public class GreenDetect {
 		}
 		Mat edges = new Mat();
 		Imgproc.Canny(gray, edges, 0 , 100);
-		List<MatOfPoint> contours = null;
+		ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Imgproc.findContours(edges , contours, edges, Imgproc.RETR_EXTERNAL , Imgproc.CHAIN_APPROX_SIMPLE);
-		MatOfPoint2f approx = null;
-		MatOfPoint2f CONTS = null;
+		MatOfPoint2f approx = new MatOfPoint2f();
+		MatOfPoint2f CONTS = new MatOfPoint2f();
 		for (int i = 0 ; i < contours.size() ; i++) {
 			CONTS = new MatOfPoint2f(contours.get(i).toArray());
 			Imgproc.approxPolyDP(CONTS, approx, Imgproc.arcLength(CONTS , true) * 0.02 , true);
