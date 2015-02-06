@@ -21,10 +21,10 @@ using namespace cv;
 int xcoor , ycoor , width , height;
 
 bool pointXAxisSort(const Point &a, const Point &b) {
-    return a.x < b.x;
+	return a.x < b.x;
 }
 bool pointYAxisSort(const Point &a, const Point &b) {
-    return a.y < b.y;
+	return a.y < b.y;
 }
 
 double camera_angle;
@@ -38,93 +38,101 @@ int minimapDraw_xcoor;
 int minimapDraw_ycoor;
 
 Mat minimap;
+Mat yellowToReturn , grayToReturn , greenToReturn;
+Mat yellowHSV , grayHSV , greenHSV;
 
 Mat getYellow(Mat original) {
-	Mat toReturn;
-	Mat HSV;
-	cvtColor(original , HSV , CV_BGR2HSV);
-	inRange(HSV , Scalar(26 , 30 , 32) , Scalar(33 , 255 , 255) , toReturn);
-	GaussianBlur(toReturn , toReturn , Size(3,3) , 1.5 , 1.5);
+	cvtColor(original , yellowHSV , CV_BGR2HSV);
+	inRange(yellowHSV , Scalar(26 , 30 , 32) , Scalar(33 , 255 , 255) , yellowToReturn);
+	//GaussianBlur(yellowToReturn , yellowToReturn , Size(3,3) , 1.5 , 1.5);
 
-	erode(toReturn , toReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
-	dilate(toReturn , toReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
-	dilate(toReturn , toReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
-	erode(toReturn , toReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
+	/*erode(yellowToReturn , yellowToReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
+	dilate(yellowToReturn , yellowToReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
+	dilate(yellowToReturn , yellowToReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
+	erode(yellowToReturn , yellowToReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );*/
 
-	threshold(toReturn , toReturn , 127 , 255 , THRESH_BINARY);
-	return toReturn;
+	//threshold(yellowToReturn , yellowToReturn , 127 , 255 , THRESH_BINARY);
+	return yellowToReturn;
 }
 
 Mat getGray(Mat original) {
-        Mat toReturn;
-        Mat HSV;
-        cvtColor(original , HSV , CV_BGR2HSV);
-        inRange(HSV , Scalar(0 , 8 , 0) , Scalar(179 , 40 , 128) , toReturn);
-	GaussianBlur(toReturn , toReturn , Size(3,3) , 1.5 , 1.5);
+	cvtColor(original , grayHSV , CV_BGR2HSV);
+	inRange(grayHSV , Scalar(0 , 8 , 0) , Scalar(179 , 40 , 128) , grayToReturn);
+	//GaussianBlur(grayToReturn , grayToReturn , Size(3,3) , 1.5 , 1.5);
 
-        erode(toReturn , toReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
-        dilate(toReturn , toReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
-        dilate(toReturn , toReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
-        erode(toReturn , toReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
+	/*erode(grayToReturn , grayToReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
+	dilate(grayToReturn , grayToReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
+	dilate(grayToReturn , grayToReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
+	erode(grayToReturn , grayToReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );*/
 
-	threshold(toReturn , toReturn , 127 , 255 , THRESH_BINARY);
-        return toReturn;
+	//threshold(grayToReturn , grayToReturn , 127 , 255 , THRESH_BINARY);
+	return grayToReturn;
 }
 
 Mat getGreen(Mat original) {
-        Mat toReturn;
-        Mat HSV;
-        cvtColor(original , HSV , CV_BGR2HSV);
-        inRange(HSV , Scalar(42 , 60 , 15) , Scalar(67 , 255 , 90) , toReturn);
-	GaussianBlur(toReturn , toReturn , Size(3,3) , 1.5 , 1.5);
+	cvtColor(original , greenHSV , CV_BGR2HSV);
+	inRange(greenHSV , Scalar(42 , 60 , 15) , Scalar(67 , 255 , 90) , greenToReturn);
+	//GaussianBlur(greenToReturn , greenToReturn , Size(3,3) , 1.5 , 1.5);
 
-        erode(toReturn , toReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
-        dilate(toReturn , toReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
-        dilate(toReturn , toReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
-        erode(toReturn , toReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
+	/*erode(greenToReturn , greenToReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
+	dilate(greenToReturn , greenToReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
+	dilate(greenToReturn , greenToReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );
+	erode(greenToReturn , greenToReturn , getStructuringElement(MORPH_RECT, Size(5 , 5)) );*/
 
-	threshold(toReturn , toReturn , 127 , 255 , THRESH_BINARY);
-        return toReturn;
+	//threshold(greenToReturn , greenToReturn , 127 , 255 , THRESH_BINARY);
+	return greenToReturn;
 }
 
 void drawObjOnMap(vector<Point> contours , int color) {
-		//Takes a found rectangle in track() and performs trig calculations to figure out distance away from the robot
-		//Draws the detected object on the minimap using circle(Mat& img, Point center, int radius, const Scalar& color, int thickness=1, int lineType=8, int shift=0)
+	//Takes a found rectangle in track() and performs trig calculations to figure out distance away from the robot
+	//Draws the detected object on the minimap using circle(Mat& img, Point center, int radius, const Scalar& color, int thickness=1, int lineType=8, int shift=0)
 
-		sort(contours.begin() , contours.end() , pointXAxisSort);
+	sort(contours.begin() , contours.end() , pointXAxisSort);
 
-		xcoor = contours.at(0).x;
-		width = contours.at(contours.size() - 1).x - xcoor;
+	xcoor = contours.at(0).x;
+	width = contours.at(contours.size() - 1).x - xcoor;
 
-		sort(contours.begin() , contours.end() , pointYAxisSort);
+	sort(contours.begin() , contours.end() , pointYAxisSort);
 
-		ycoor = contours.at(0).y;
-		height = contours.at(contours.size() - 1).y - ycoor;
-/*
-		cout << "xcoor: " << xcoor << endl;
-		cout << "ycoor: " << ycoor << endl;
-		cout << "width: " << width << endl;
-		cout << "height: " << height << endl;
-*/
-		//Formulas:
-
-		
+	ycoor = contours.at(0).y;
+	height = contours.at(contours.size() - 1).y - ycoor;
+	/*
+	cout << "xcoor: " << xcoor << endl;
+	cout << "ycoor: " << ycoor << endl;
+	cout << "width: " << width << endl;
+	cout << "height: " << height << endl;
+	 */
+	//Formulas:
 
 }
 
+Mat yellowEdges;
+Mat greyEdges;
+Mat greenEdges;
+
+vector<vector<Point> > yellowContours;
+vector<vector<Point> > greyContours;
+vector<vector<Point> > greenContours;
+
+Rect yellowBounds = Rect(0,0,0,0);
+Rect greyBounds = Rect(0,0,0,0);
+Rect greenBounds = Rect(0,0,0,0);
+
 Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 
-	Mat yellowEdges;
+	/* Mat yellowEdges;
 	Mat greyEdges;
 	Mat greenEdges;
+	 */
 	Mat dst = original.clone();
-	vector<vector<Point> > yellowContours;
-        vector<vector<Point> > greyContours;
-        vector<vector<Point> > greenContours;
+	/* vector<vector<Point> > yellowContours;
+	vector<vector<Point> > greyContours;
+	vector<vector<Point> > greenContours;
 
 	Rect yellowBounds = Rect(0,0,0,0);
 	Rect greyBounds = Rect(0,0,0,0);
 	Rect greenBounds = Rect(0,0,0,0);
+	 */
 
 	Canny(yellow , yellowEdges , 0 , 100 , 5);
 	Canny(grey , greyEdges , 0 , 100 , 5);
@@ -179,7 +187,6 @@ Mat track(Mat yellow , Mat grey , Mat green , Mat original) {
 	temp.clear();
 
 	return dst;
-
 }
 
 void readconf() {
@@ -202,12 +209,12 @@ void readconf() {
 		cout << buffer << endl;
 	}
 
-/*
+	/*
 	cout << camera_angle << endl;
 	cout << cameraheight << endl;
 	cout << fieldofview_vertical << endl;
 	cout << fieldofview_horizontal << endl;
-*/
+	 */
 	fin.close();
 }
 
@@ -216,7 +223,7 @@ int main() {
 	readconf();
 
 	VideoCapture cap(0);
-	cvNamedWindow("Window" , CV_WINDOW_NORMAL);
+	//cvNamedWindow("Window" , CV_WINDOW_NORMAL);
 
 	if (!cap.isOpened()) {
 		cout << "Webcam not found" << endl;
@@ -233,8 +240,8 @@ int main() {
 	circle(minimap , roboCenter , 2 , Scalar(0 , 0 , 255) , 2 , 8 , 0);
 
 	cap >> frame;
-	//Get size of image:
 
+	//Get size of image:
 	img_height = frame.rows;
 	img_base = frame.cols;
 
@@ -244,23 +251,19 @@ int main() {
 		grey = getGray(frame);
 		green = getGreen(frame);
 
-
-//		imshow("Yellow" , yellow);
-//		imshow("Grey" , grey);
-//		imshow("Green" , green);
-
+		//		imshow("Yellow" , yellow);
+		//		imshow("Grey" , grey);
+		//		imshow("Green" , green);
 
 		proxy = track(yellow , grey , green , frame);
 		imshow("Detection" , proxy);
 
 		imshow("Minimap - CV" , minimap);
 
-		if(waitKey(30) >= 0) {
+		if(waitKey(15) >= 0) {
 			break;
 		}
 
 	}
-
-
 
 }
