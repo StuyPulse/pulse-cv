@@ -36,7 +36,7 @@
 		// Convert to HSV so that we can detect the range
 		Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2HSV);
 		
-		// THEORETICALLY Working yellow ranges
+		// Work in progress yellow ranges
 		Core.inRange(frame, new Scalar(22 , 50 , 50) , new Scalar(29.5 , 255 , 255), frame);
 				
 		// Smooth edges and find contours
@@ -48,7 +48,8 @@
 			MatOfPoint temp =  (MatOfPoint) iterator.next();
 			
 			// Use width times height instead of contourArea because java 
-			if (temp.width() * temp.height() < 5) {
+			// Width * height is different in live feed and camera
+			if (temp.width() * temp.height() < 50) {
 				iterator.remove();
 				
 			}
@@ -57,8 +58,10 @@
 		// Go through each contour
 		for (int i = 0; i < contour.size(); i++){
 			
+			// Convert to MatOfPoint2f to use approxPolyDP
 			contour.get(i).convertTo(MOP2f, CvType.CV_32FC2);
 			Imgproc.approxPolyDP(MOP2f, MOP2f, 2 , true);
+			// Convert into a list
 			List<Point> contourList = MOP2f.toList();
 			
 			// If the object has 4 sides, then it's a rectangle,
@@ -67,11 +70,11 @@
 				MatOfPoint pts = new MatOfPoint(MOP2f.toArray());
 				rect = Imgproc.boundingRect(pts);
 				
-				// Origin is at the top left
+				// We know that the origin (0,0) is at the top left
 				Point topLeft = new Point(rect.x, rect.y);
-				Point lowerRight = new Point(rect.x+rect.width, rect.y+rect.height);
+				Point lowerRight = new Point(rect.x+rect.width, rect.y-rect.height);
 				
-				Core.rectangle(tracked, topLeft, lowerRight, new Scalar(30, 100, 0), 2);
+				Core.rectangle(tracked, topLeft, lowerRight, new Scalar(30, 100, 255), 2);
 			}
 		}
 	
@@ -92,7 +95,6 @@
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);		
 		VideoCapture cap = new VideoCapture(0);
 		Mat src = new Mat();
-		Mat dst = new Mat();
 	
 		if (!cap.isOpened()) {
 			System.out.println("VideoCapture device not detected.");
@@ -101,7 +103,8 @@
 	
 		Imshow cam = new Imshow("Feed");
 	
-		/*// Live feed
+		// Live feed
+		/*
 		for (;;) {
 			if (cap.grab()) {
 				try {
@@ -116,7 +119,7 @@
 			}
 		} */
 		
-		// Single image test
+		// Single image test (note that single image works better than live feed)
 		
 		Mat img = Highgui.imread("/home/james/Dev/pulse-cv/2014_2015/Practice/Java/YELLOW.png");
 		img = yellowRectangleDetect(img);
