@@ -36,15 +36,24 @@ public class YellowRectangleDetect {
 		// Convert to HSV so that we can detect the range
 		Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2HSV);
 
-		// Work in progress yellow ranges
-		Core.inRange(frame, new Scalar(19 , 50 , 50) , new Scalar(35 , 255 , 255), frame);
+		// Working yellow ranges
+		Core.inRange(frame, new Scalar(23 , 50 , 50) , new Scalar(35 , 255 , 255), frame);
 
 		// Smooth edges and find contours
-		Imgproc.Canny(frame, edges, 0, 100);
-		Imgproc.dilate(edges , edges , Imgproc.getStructuringElement(Imgproc.MORPH_RECT , new Size(5,5)));
 		
+		//Imgproc.Canny(frame, edges, 0, 100);
+		Imgproc.GaussianBlur(frame, edges, new Size(3,3), 1.5, 1.5);
+
+		// Sequence of erode and dilate to remove weird noise
+		// Upon using Canny and the dilation sequences, things break
+		Imgproc.erode(edges , edges , Imgproc.getStructuringElement(Imgproc.MORPH_RECT , new Size(3,3)));
+		Imgproc.dilate(edges , edges , Imgproc.getStructuringElement(Imgproc.MORPH_RECT , new Size(3,3)));
+		Imgproc.dilate(edges , edges , Imgproc.getStructuringElement(Imgproc.MORPH_RECT , new Size(3,3)));
+		Imgproc.erode(edges , edges , Imgproc.getStructuringElement(Imgproc.MORPH_RECT , new Size(3,3)));
+
+		Imgproc.threshold(edges, edges, 127, 255, Imgproc.THRESH_BINARY);
 		Imgproc.findContours(edges, contour, new Mat() , Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-		
+
 		double currArea = -1.0; // Current largest area
 		int max_polygon_index = -1; // The index of the largest polygon
 
@@ -84,9 +93,6 @@ public class YellowRectangleDetect {
 			}
 		} */
 
-		// If the object has 4 sides, then it's a quadrilateral,
-		// and draws a rectangle around it. 
-
 		MatOfPoint pts = new MatOfPoint(MOP2f.toArray());
 		rect = Imgproc.boundingRect(pts);
 
@@ -94,19 +100,15 @@ public class YellowRectangleDetect {
 		Point topLeft = new Point(rect.x, rect.y);
 		// y coordinate has to be rect.y + rect.height because subtracting brings the boundingRect up?
 		Point lowerRight = new Point(rect.x+rect.width, rect.y+rect.height);
-
-		//System.out.println("Top Left:" + topLeft);
-		//System.out.println("Lower Right: " + lowerRight);
 		Core.rectangle(tracked, topLeft, lowerRight, new Scalar(30, 100, 255), 2);
 
 		return tracked; 
-
 	}
 
 	// Binarialize the image for debugging color values
 	public static Mat bin(Mat orig) {
 		Imgproc.cvtColor(orig, orig, Imgproc.COLOR_BGR2HSV);
-		Core.inRange(orig, new Scalar(24 , 50 , 50) , new Scalar(38 , 255 , 255), orig);
+		Core.inRange(orig, new Scalar(23 , 50 , 50) , new Scalar(35 , 255 , 255), orig);
 
 		return orig;
 	}
@@ -126,7 +128,7 @@ public class YellowRectangleDetect {
 		// Live feed
 		long starttime = System.currentTimeMillis();
 		for (;;) {
-			if (cap.grab() && System.currentTimeMillis() - starttime > 250) {
+			if (cap.grab() && System.currentTimeMillis() - starttime > 150) {
 				starttime = System.currentTimeMillis();
 				try {
 					if (cap.retrieve(src)) {
@@ -145,6 +147,6 @@ public class YellowRectangleDetect {
 		Mat img = Highgui.imread("/home/james/Dev/pulse-cv/2014_2015/Practice/Java/YELLOW.png");
 		img = yellowRectangleDetect(img);
 		cam.showImage(img);
-		 */
+		*/
 	}
 }
