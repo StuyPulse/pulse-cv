@@ -76,7 +76,6 @@ public class YellowRectangleDetect {
 
 		/* for (int i = 1 ; i < contour.size() ; i++) {
 
-			System.out.printf("%f , %f\n" , currLargestArea , currSecondArea);
 			if (contourList.size() == 4) {
 				area = contour.get(i).width() * contour.get(i).height();
 
@@ -105,12 +104,12 @@ public class YellowRectangleDetect {
 
 			}
 		}
-		);
-		
-		if(contour.size() >= 2) {
+				);
 
-			MatOfPoint pts = new MatOfPoint(contour.get(1));
-			MatOfPoint pts2 = new MatOfPoint(contour.get(2));
+		if(contour.size() >= 2) {
+	        contour.add(contour.remove(0));
+			MatOfPoint pts = new MatOfPoint(contour.get(0));
+			MatOfPoint pts2 = new MatOfPoint(contour.get(1));
 
 			firstRect = Imgproc.boundingRect(pts);	
 			secondRect = Imgproc.boundingRect(pts2);
@@ -128,19 +127,6 @@ public class YellowRectangleDetect {
 
 		}
 
-		// IRRELEVANT
-		// Use Iterator to go through the contours 
-		/*
-		for (Iterator<MatOfPoint> iterator = contour.iterator(); iterator.hasNext();){
-			MatOfPoint temp =  (MatOfPoint) iterator.next();
-
-			// Use width times height instead of contourArea because java 
-			// (Width * height is different in live feed and camera,
-			// change accordingly)
-			if (temp.width() * temp.height() < 50) {
-				iterator.remove();
-			}
-		} */
 		return tracked; 
 	}
 
@@ -154,20 +140,20 @@ public class YellowRectangleDetect {
 
 	public static void main(String[] args) {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);		
-		//VideoCapture cap = new VideoCapture(0);
+		VideoCapture cap = new VideoCapture(0);
 		Mat src = new Mat();
 		Mat dst = new Mat();
-		/*
+
 		if (!cap.isOpened()) {
 			System.out.println("VideoCapture device not detected.");
 			System.exit(0);
 		}
-		 */
+
 		Imshow cam = new Imshow("Feed");
 		Imshow cam2 = new Imshow("Binary");
 
 		// Live feed
-		/*
+
 		long starttime = System.currentTimeMillis();
 		for (;;) {
 			if (cap.grab() && System.currentTimeMillis() - starttime > 150) {
@@ -185,12 +171,13 @@ public class YellowRectangleDetect {
 
 				}
 			}
-		} */
+		}
 
 		// Single image test (note that single image works better than live feed)
+		/*
 		Mat img = Highgui.imread("/home/james/Dev/pulse-cv/2014_2015/Practice/Java/YELLOW.png");
 		img = yellowRectangleDetect(img);
-		cam.showImage(img);
+		cam.showImage(img); */
 
 	}
 }
