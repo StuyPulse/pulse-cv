@@ -33,5 +33,9 @@ sudo -v
 
 sudo sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 sudo ldconfig
+
+echo "Installing external ImShow library for OpenCV Java"
+git clone https://github.com/master-atul/ImShow-Java-OpenCV ~/OpenCV
+
 echo "OpenCV $VERSION is now installed!"
 echo "Run 'g++ <file>.cpp -o <file> `pkg-config --libs --cflags opencv`' to compile"
