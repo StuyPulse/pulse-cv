@@ -2,18 +2,27 @@
 # Script to install OpenCV libraries
 
 set -e # Abort if any command returns a non-zero exit code
-cd ~
 
-version="$(wget -q -O - http://sourceforge.net/projects/opencvlibrary/files/opencv-unix | egrep -m1 -o '\"[0-9](\.[0-9]+)+' | cut -c2-)"
+echo -n "Download latest version? [y/n] "
+read ans
+if [[ $ans =~ ^[Yy]$ ]]; then
+    version="$(wget -q -O - http://sourceforge.net/projects/opencvlibrary/files/opencv-unix | egrep -m1 -o '\"[0-9](\.[0-9]+)+' | cut -c2-)"
+else
+    echo -n "What version would you like to install?: "
+    read ans
+    version=$ans
+fi
 echo "Installing OpenCV $version"
 
-mkdir OpenCV
-cd OpenCV
+if [ ! -d $HOME/OpenCV ]; then
+    mkdir $HOME/OpenCV
+fi
+cd $HOME/OpenCV
 
 echo "Removing any pre-installed ffmpeg and x264"
 sudo apt-get -qq remove ffmpeg x264 libx264-dev
 echo "Installing Dependenices"
-sudo apt-get -y -qq install libopencv-dev build-essential checkinstall cmake pkg-config yasm libjpeg-dev libjasper-dev libavcodec-dev libavformat-dev libswscale-dev libdc1394-22-dev libxine-dev libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev libv4l-dev python-dev python-numpy libtbb-dev libqt4-dev libgtk2.0-dev libfaac-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libtheora-dev libvorbis-dev libxvidcore-dev x264 v4l-utils ffmpeg unzip
+sudo apt-get -y -qq install libopencv-dev build-essential checkinstall cmake pkg-config yasm libjpeg-dev libjasper-dev libavcodec-dev libavformat-dev libswscale-dev libdc1394-22-dev libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev libv4l-dev python-dev python-numpy libtbb-dev libqt4-dev libgtk2.0-dev libfaac-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libtheora-dev libvorbis-dev libxvidcore-dev x264 v4l-utils ffmpeg unzip
 sudo -v
 
 echo "Downloading OpenCV $version"
@@ -34,8 +43,11 @@ sudo -v
 sudo sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
 sudo ldconfig
 
-echo "Installing external ImShow library for OpenCV Java"
-git clone https://github.com/master-atul/ImShow-Java-OpenCV ~/OpenCV
+# OpenCV version 3 and up doesn't have highgui, rendering the following lib useless
+if [[ $version =~ ^3 ]]; then
+    echo "Installing external ImShow library for OpenCV Java"
+    git clone https://github.com/master-atul/ImShow-Java-OpenCV ~/OpenCV
+fi
 
 echo "OpenCV $VERSION is now installed!"
 echo "Run 'g++ <file>.cpp -o <file> `pkg-config --libs --cflags opencv`' to compile"
